@@ -16,5 +16,11 @@
   # Configure network connections interactively with nmcli or nmtui.
   networking.networkmanager.enable = true;
 
+  # Include configuration into the finished system
+  systemd.tmpfiles.rules = [
+    "C /etc/nixos 644 root root - ${./.}"
+    "Z /etc/nixos 644 root root"
+  ];
+
   system.stateVersion = "26.05";
 }
