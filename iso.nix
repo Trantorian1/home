@@ -32,6 +32,7 @@
           -m 16G \
           -smp 4 \
           -drive file=drive.img,format=qcow2,if=virtio \
+          -nic user,model=virtio-net-pci \
           -cdrom ${config.iso}/iso/${config.iso.isoName}
       '';
     };
