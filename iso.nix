@@ -25,7 +25,7 @@
         qemu-system-x86_64 \
           -machine q35,accel=kvm:tcg \
           -cpu max \
-          -m 8G \
+          -m 16G \
           -smp 4 \
           -cdrom ${config.iso}/iso/${config.iso.isoName}
       '';

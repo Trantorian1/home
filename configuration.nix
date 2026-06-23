@@ -7,6 +7,7 @@
   nixpkgs = import sources.nixpkgs {inherit (pkgs.stdenv.hostPlatform) system;};
 in {
   imports = [
+    ./nix/hardware.nix
     ./nix/audio.nix
     ./nix/gnome.nix
     ./nix/locale.nix
@@ -36,6 +37,11 @@ in {
   nix.registry.nixpkgs.flake = sources.nixpkgs;
   nix.nixPath = ["nixpkgs=flake:nixpkgs"];
 
+  # Default software in use by all users
+  environment.systemPackages = with pkgs; [
+    git
+  ];
+
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -43,12 +49,6 @@ in {
 
   # Configure network connections interactively with nmcli or nmtui.
   networking.networkmanager.enable = true;
-
-  # Include configuration into the finished system
-  systemd.tmpfiles.rules = [
-    "C /etc/nixos 644 root root - ${./.}"
-    "Z /etc/nixos 644 root root"
-  ];
 
   system.stateVersion = "26.05";
 }

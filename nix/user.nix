@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
   source = pkgs.fetchFromGitHub {
     owner = "trantorian1";
     repo = "rv";
@@ -6,6 +10,8 @@
     hash = "sha256-0tHA+kkdxyMX2FnlZG+A6+cDFQgbdQa9lstGauh9K00=";
   };
   rv = import source {inherit (pkgs.stdenv.hostPlatform) system;};
+
+  dotfiles = "${config.users.users.trantorian.home}/.dotfiles";
 in {
   users.users.trantorian = {
     isNormalUser = true;
@@ -23,4 +29,23 @@ in {
   # Auto-login user
   services.displayManager.defaultSession = "gnome";
   services.displayManager.autoLogin.user = "trantorian";
+
+  # Make config available in home directory
+  nix.nixPath = ["nixos-config=${dotfiles}/configuration.nix"];
+
+  system.activationScripts.seedNixosConfig.text = ''
+    if [ ! -e ${dotfiles}/configuration.nix ]; then
+      mkdir -p ${dotfiles}
+      cp -r --no-preserve=mode ${../.}/* ${dotfiles}
+      chown -R trantorian:users ${dotfiles}
+    fi
+  '';
+
+  systemd.services.generate-factor-report = {
+    wantedBy = ["multi-user.target"];
+    unitConfig.ConditionPathExists = "!${dotfiles}/facter.json";
+    serviceConfig.Type = "oneshot";
+    path = [pkgs.nixos-facter];
+    script = "nixos-facter -o ${dotfiles}/facter.json";
+  };
 }
