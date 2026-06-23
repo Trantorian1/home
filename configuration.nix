@@ -12,6 +12,9 @@ in {
     ./nix/gnome.nix
     ./nix/locale.nix
     ./nix/user.nix
+    ./nix/disk.nix
+
+    (sources.disko + "/module.nix")
   ];
 
   networking.hostName = "home";
@@ -42,9 +45,10 @@ in {
     git
   ];
 
-  # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  # Use the grub boot loader.
+  boot.loader.grub.enable = true;
+  boot.loader.grub.efiSupport = true;
+  boot.loader.grub.efiInstallAsRemovable = true;
   boot.loader.timeout = lib.mkForce 5;
 
   # Configure network connections interactively with nmcli or nmtui.

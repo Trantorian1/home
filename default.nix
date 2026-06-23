@@ -9,7 +9,7 @@
     },
   ...
 }: let
-  nixos = pkgs.nixos ./configuration.nix;
+  nixos = pkgs.nixos ./installer.nix;
   module = pkgs.lib.evalModules {
     modules = [
       ({config, ...}: {config._module.args = {inherit pkgs nixos;};})
