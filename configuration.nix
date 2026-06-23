@@ -1,5 +1,10 @@
-{lib, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   sources = import ./npins;
+  nixpkgs = import sources.nixpkgs {inherit (pkgs.stdenv.hostPlatform) system;};
 in {
   imports = [
     ./nix/audio.nix
@@ -11,6 +16,21 @@ in {
   networking.hostName = "home";
 
   nix.settings.experimental-features = "nix-command flakes";
+
+  # Override the nix version to use lix instead
+  # https://git.lix.systems/lix-project/lix
+  nixpkgs.overlays = [
+    (final: prev: {
+      inherit
+        (prev.lixPackageSets.stable)
+        nixpkgs-review
+        nix-eval-jobs
+        nix-fast-build
+        colmena
+        ;
+    })
+  ];
+  nix.package = nixpkgs.lixPackageSets.stable.lix;
 
   # Pin the version of nixpkgs in use
   nix.registry.nixpkgs.flake = sources.nixpkgs;
