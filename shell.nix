@@ -8,5 +8,6 @@ pkgs.mkShellNoCC {
   packages = with pkgs; [
     npins
     nixos-facter
+    nurl
   ];
 }
