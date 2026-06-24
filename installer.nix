@@ -134,7 +134,6 @@ in {
     toplevel = target.config.system.build.toplevel;
     diskoScript = target.config.system.build.diskoScript;
 
-    confFiles = "/tmp/.dotfiles";
     dotFiles = "${target.config.users.users.trantorian.home}/.dotfiles";
   in
     common lib {
@@ -162,10 +161,6 @@ in {
           echo ">>> formatting + mounting"
           ${diskoScript}
 
-          echo ">>> loading configuration"
-          mkdir -p ${confFiles}
-          cp -r --no-preserve=mode ${./.}/* ${confFiles}
-
           echo ">>> installing system"
           nixos-install \
             --system ${toplevel} \
@@ -173,8 +168,10 @@ in {
             --no-root-passwd \
             --no-channel-copy
 
-          mkdir -p ${dotFiles}
-          cp -r ${confFiles}/* ${dotFiles}
+          echo ">>> loading configuration"
+          mkdir -p /mnt${dotFiles}
+          cp -r --no-preserve=mode ${./.}/* /mnt${dotFiles}
+          nixos-enter --root /mnt -c "chown -R trantorian:users ${dotFiles}"
 
           echo ">>> install complete; rebooting"
           systemctl reboot
