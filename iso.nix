@@ -24,6 +24,8 @@ in {
   };
 
   config = {
+    # discover = true;
+
     iso =
       if config.discover
       then discover.config.system.build.images.iso
