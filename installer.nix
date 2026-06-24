@@ -1,70 +1,110 @@
 {
-  pkgs,
-  lib,
-  ...
-}: let
-  sources = import ./npins;
-  nixpkgs = import sources.nixpkgs {inherit (pkgs.stdenv.hostPlatform) system;};
+  discover = {
+    pkgs,
+    lib,
+    ...
+  }: let
+    sources = import ./npins;
+    nixpkgs = import sources.nixpkgs {inherit (pkgs.stdenv.hostPlatform) system;};
 
-  target = pkgs.nixos ./configuration.nix;
-  toplevel = target.config.system.build.toplevel;
-  diskoScript = target.config.system.build.diskoScript;
+    reportFiles = "/tmp/hardware-report";
+  in {
+    nix.settings.substituters = lib.mkForce [];
 
-  confFiles = "/tmp/.dotfiles";
-  dotFiles = "${target.config.users.users.trantorian.home}/.dotfiles";
-in {
-  nix.settings.substituters = lib.mkForce [];
-
-  system.extraDependencies = [toplevel];
-
-  systemd.services."getty@tty1".enable = false;
-
-  systemd.services.autoinstall = {
-    description = "Auto-install NixOs system";
-
-    wantedBy = ["multi-user.target"];
-    conflicts = ["autovt@tty1.service"];
-    serviceConfig = {
-      Type = "oneshot";
-      StandardOutput = "tty";
-      StandardError = "tty";
-      TTYPath = "/dev/tty1";
+    users.users.nixos = {
+      isNormalUser = true;
+      extraGroups = ["wheel"];
+      initialPassword = "test";
     };
 
-    path = with nixpkgs; [
-      nix
-      nixos-install-tools
-      nixos-facter
-    ];
+    services.getty.autologinUser = "nixos";
 
-    script = ''
-      set -euo pipefail
+    services.openssh = {
+      enable = true;
+      openFirewall = true;
+      settings = {
+        PasswordAuthentication = true;
+      };
+    };
 
-      echo ">>> formatting + mounting"
-      ${diskoScript}
+    systemd.services.hardware-report = {
+      description = "Generate hardware report";
 
-      echo ">>> loading configuration"
-      mkdir -p ${confFiles}
-      cp -r --no-preserve=mode ${./.}/* ${confFiles}
+      wantedBy = ["multi-user.target"];
 
-      echo ">>> generating hardware report"
-      nixos-facter -o ${confFiles}/nix/facter.json
+      path = with nixpkgs; [nixos-facter];
 
-      echo ">>> building system"
-      nix-build ${confFiles}/install-system.nix -o /tmp/system
-
-      echo ">>> installing system"
-      nixos-install \
-        --system /tmp/system \
-        --root /mnt \
-        --no-root-passwd \
-        --no-channel-copy
-      cp -r ${confFiles}/* ${dotFiles}
-
-      echo ">>> install complete; rebooting"
-      systemctl reboot
-    '';
+      script = ''
+        echo ">>> Generating hardware config"
+        mkdir -p ${reportFiles}
+        nixos-facter -o ${reportFiles}/facter.json
+        chown nixos:users ${reportFiles}/facter.json
+      '';
+    };
   };
 
-  system.stateVersion = "26.05";
+  bootstrap = {
+    pkgs,
+    lib,
+    ...
+  }: let
+    sources = import ./npins;
+    nixpkgs = import sources.nixpkgs {inherit (pkgs.stdenv.hostPlatform) system;};
+
+    target = pkgs.nixos ./configuration.nix;
+
+    toplevel = target.config.system.build.toplevel;
+    diskoScript = target.config.system.build.diskoScript;
+
+    confFiles = "/tmp/.dotfiles";
+    dotFiles = "${target.config.users.users.trantorian.home}/.dotfiles";
+  in {
+    nix.settings.substituters = lib.mkForce [];
+
+    systemd.services."getty@tty1".enable = false;
+
+    systemd.services.auto-install = {
+      description = "Auto-install NixOs system";
+
+      wantedBy = ["multi-user.target"];
+      conflicts = ["autovt@tty1.service"];
+      serviceConfig = {
+        Type = "oneshot";
+        StandardOutput = "tty";
+        StandardError = "tty";
+        TTYPath = "/dev/tty1";
+      };
+
+      path = with nixpkgs; [
+        nix
+        nixos-install-tools
+      ];
+
+      script = ''
+        set -euo pipefail
+
+        echo ">>> formatting + mounting"
+        ${diskoScript}
+
+        echo ">>> loading configuration"
+        mkdir -p ${confFiles}
+        cp -r --no-preserve=mode ${./.}/* ${confFiles}
+
+        echo ">>> installing system"
+        nixos-install \
+          --system ${toplevel} \
+          --root /mnt \
+          --no-root-passwd \
+          --no-channel-copy
+
+        mkdir -p ${dotFiles}
+        cp -r ${confFiles}/* ${dotFiles}
+
+        echo ">>> install complete; rebooting"
+        systemctl reboot
+      '';
+    };
+
+    system.stateVersion = "26.05";
+  };
 }
