@@ -3,7 +3,7 @@
     disk = {
       my-disk = {
         type = "disk";
-        device = "/dev/vda";
+        device = "/dev/disk/by-path/pci-0000:00:03.0";
         content = {
           type = "gpt";
           partitions = {

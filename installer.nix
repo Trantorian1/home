@@ -94,6 +94,9 @@ in {
           mkdir -p ${reportFiles}
           nixos-facter -o ${reportFiles}/facter.json
           chown nixos:users ${reportFiles}/facter.json
+
+          echo ">>> List drives"
+          ls -l /dev/disk/by-path
         '';
       };
     };

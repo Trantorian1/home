@@ -19,7 +19,10 @@ in {
 
   networking.hostName = "home";
 
-  nix.settings.experimental-features = "nix-command flakes";
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # Override the nix version to use lix instead
   # https://git.lix.systems/lix-project/lix
