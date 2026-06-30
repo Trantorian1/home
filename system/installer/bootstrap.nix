@@ -7,7 +7,7 @@
   util = config.util;
 in {
   flake.nixosModules.bootstrap = let
-    target = self.nixosConfigurations.desktop;
+    target = config.installer.targetSystem;
 
     toplevel = target.config.system.build.toplevel;
     diskoScript = target.config.system.build.diskoScript;

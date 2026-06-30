@@ -1,5 +1,6 @@
 {lib, ...}: {
   imports = [
+    ./options.nix
     ./discover.nix
     ./bootstrap.nix
   ];

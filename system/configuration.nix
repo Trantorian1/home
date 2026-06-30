@@ -1,26 +1,16 @@
-{
-  self,
-  inputs,
-  ...
-}: {
-  flake.nixosModules.desktop = {
+{inputs, ...}: {
+  imports = [./hosts];
+
+  flake.nixosModules.core = {
     config,
     pkgs,
     lib,
     ...
   }: {
     imports = [
-      ./nix/hardware.nix
-      ./nix/audio.nix
-      ./nix/gnome.nix
-      ./nix/locale.nix
-      ./nix/user.nix
-      ./nix/disk.nix
-
+      ./nix
       inputs.disko.nixosModules.disko
     ];
-
-    networking.hostName = "home";
 
     nix.settings.experimental-features = [
       "nix-command"
@@ -58,10 +48,4 @@
 
     system.stateVersion = "26.05";
   };
-
-  flake.nixosConfigurations.desktop = inputs.nixpkgs.lib.nixosSystem {
-    modules = [self.nixosModules.desktop];
-  };
-
-  flake.nixosConfigurations.home = self.nixosConfigurations.desktop;
 }
