@@ -1,36 +1,37 @@
 {
-  description = "A very basic flake";
+  inputs = {
+    nixpkgs = {
+      url = "github:NixOs/nixpkgs/nixos-26.05";
+    };
 
-  outputs = {self, ...}: let
-    util = import ./lib/util.nix {};
-  in
-    util.eachDefaultSystem (
-      system: let
-        super = import ./. {inherit system;};
-        shell = import ./shell.nix {inherit system;};
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+    };
 
-        inherit (super) pkgs;
-      in {
+    disko = {
+      url = "github:nix-community/disko/v1.13.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = inputs @ {flake-parts, ...}:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = ["x86_64-linux"];
+
+      imports = [
+        ./lib
+        ./system
+      ];
+
+      perSystem = {pkgs, ...}: {
         formatter = pkgs.alejandra;
 
-        packages = rec {
-          inherit (super.module.config) iso vm;
-
-          default = vm;
+        devShells.default = pkgs.mkShellNoCC {
+          packages = with pkgs; [
+            nixos-facter
+            nurl
+          ];
         };
-
-        apps = rec {
-          iso = util.mkApp self.packages.${system}.iso;
-          vm = util.mkApp self.packages.${system}.vm;
-
-          default = vm;
-        };
-
-        devShells = rec {
-          inherit shell;
-
-          default = shell;
-        };
-      }
-    );
+      };
+    };
 }

@@ -29,5 +29,5 @@ in {
   services.displayManager.autoLogin.user = "trantorian";
 
   # Make config available in home directory
-  nix.nixPath = ["nixos-config=${config.users.users.trantorian.home}/.dotfiles/configuration.nix"];
+  environment.etc.nixos.source = "${config.users.users.trantorian.home}/.dotfiles";
 }
