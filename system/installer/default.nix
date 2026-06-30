@@ -1,3 +1,20 @@
+#                         [ SYSTEM INSTALLATION ]
+#
+# System configurations used to generate reproducible, air-gaped installation
+# media which bundled the nixos system described in `configuration.nix`.
+#
+# Installation takes place in two steps:
+#
+#   1. In the 'discover' step, a hardware scan is performed which is stored to
+#      `/tmp/hardware-report/facter.json`. This file is then copied to the host
+#      machine so that it can be used in the next step.
+#
+#   2. In the `bootstrap` step, this hardware information is used to pre-compute
+#      a derivation of the desired system configuration. This derivation is then
+#      loaded into a minimal iso and applied, along with any drive partitioning
+#      associated to it.
+#
+# The target system is then rebooted into the newly applied configuration.
 {lib, ...}: {
   imports = [
     ./options.nix
