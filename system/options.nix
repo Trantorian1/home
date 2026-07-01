@@ -5,8 +5,12 @@
         type = lib.types.attrsOf lib.types.package;
       };
 
-      vm = lib.mkOption {
+      patch = lib.mkOption {
         type = lib.types.attrsOf lib.types.package;
+      };
+
+      vm = lib.mkOption {
+        type = lib.types.package;
       };
     };
   };

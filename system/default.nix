@@ -25,29 +25,50 @@ in {
       bootstrap = self.nixosConfigurations.bootstrap.config.system.build.images.iso;
     };
 
-    system.vm = builtins.mapAttrs (name: iso:
-      pkgs.writeShellApplication {
-        name = "vm";
-        runtimeInputs = with pkgs; [qemu];
+    system.patch = lib.attrsets.mapAttrs' (name: iso:
+      lib.attrsets.nameValuePair "patch-${name}" (pkgs.writeShellApplication {
+        name = "patch-${name}";
+        runtimeInputs = with pkgs; [libisoburn];
         text = ''
-          if [ ! -e drive.img ]; then
-            qemu-img create -f qcow2 drive.img 40G
+          if [ "$#" -ne 1 ]; then
+            echo "Usage: patch-${name} <secret>"
           fi
 
-          qemu-system-x86_64 \
-            -machine q35,accel=kvm:tcg \
-            -cpu max \
-            -m 16G \
-            -smp 4 \
-            -drive file=drive.img,format=qcow2,if=virtio \
-            -nic user,model=virtio-net-pci,hostfwd=tcp::2222-:22 \
-            -cdrom ${iso}/iso/${iso.isoName}
+          xorriso -indev ${iso}/iso/${iso.isoName} \
+            -outdev ./patched-${name}.iso \
+            -boot_image any replay \
+            -map "$1" /etc/hello.txt \
+            -commit
         '';
-      })
+      }))
     config.system.iso;
 
-    packages = config.system.iso;
+    system.vm = pkgs.writeShellApplication {
+      name = "vm";
+      runtimeInputs = with pkgs; [qemu];
+      text = ''
+        if [ "$#" -ne 1 ]; then
+          echo "Usage: vm <iso>"
+          exit 1
+        fi
 
-    apps = builtins.mapAttrs (name: vm: util.mkApp vm) config.system.vm;
+        if [ ! -e drive.img ]; then
+          qemu-img create -f qcow2 drive.img 40G
+        fi
+
+        qemu-system-x86_64 \
+          -machine q35,accel=kvm:tcg \
+          -cpu max \
+          -m 16G \
+          -smp 4 \
+          -drive file=drive.img,format=qcow2,if=virtio \
+          -nic user,model=virtio-net-pci,hostfwd=tcp::2222-:22 \
+          -cdrom "$1"
+      '';
+    };
+
+    packages = config.system.patch;
+
+    apps.vm = util.mkApp config.system.vm;
   };
 }

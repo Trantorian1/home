@@ -74,6 +74,7 @@ in {
             echo ">>> loading configuration"
             mkdir -p /mnt${dotFiles}
             cp -r --no-preserve=mode ${../../.}/* /mnt${dotFiles}
+            cp /iso/etc/hello.txt /mnt${dotFiles}
             nixos-enter --root /mnt -c "chown -R trantorian:users ${dotFiles}"
 
             echo ">>> install complete; rebooting"

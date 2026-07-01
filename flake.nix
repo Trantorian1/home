@@ -29,7 +29,10 @@
         devShells.default = pkgs.mkShellNoCC {
           packages = with pkgs; [
             nixos-facter
+            nix-index
             nurl
+
+            libisoburn
           ];
         };
       };
