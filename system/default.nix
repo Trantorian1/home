@@ -44,7 +44,7 @@ in {
           xorriso -indev ${iso}/iso/${iso.isoName} `# loads the iso`                       \
             -outdev $iso                                                                   \
             -boot_image any replay                 `# needed to preserve boot information` \
-            -map "$1" /etc/hello.txt               `# copies the secret into the iso fs`   \
+            -map "$1" /etc/keys.txt                `# copies the secret into the iso fs`   \
             -commit
         '';
       }))

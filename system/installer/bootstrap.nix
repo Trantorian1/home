@@ -32,6 +32,7 @@ in {
     diskoScript = target.config.system.build.diskoScript;
 
     dotFiles = "${target.config.users.users.trantorian.home}/.dotfiles";
+    sopsFiles = "${target.config.users.users.trantorian.home}/.config/sops/age";
   in
     {
       config,
@@ -74,8 +75,11 @@ in {
             echo ">>> loading configuration"
             mkdir -p /mnt${dotFiles}
             cp -r --no-preserve=mode ${../../.}/* /mnt${dotFiles}
-            cp /iso/etc/hello.txt /mnt${dotFiles}
             nixos-enter --root /mnt -c "chown -R trantorian:users ${dotFiles}"
+
+            echo ">>> loading secrets"
+            mkdir -p /mnt${sopsFiles}
+            cp /iso/etc/keys.txt /mnt${sopsFiles}
 
             echo ">>> install complete; rebooting"
             systemctl reboot

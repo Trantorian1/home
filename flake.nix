@@ -12,6 +12,11 @@
       url = "github:nix-community/disko/v1.13.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}:
@@ -28,11 +33,17 @@
 
         devShells.default = pkgs.mkShellNoCC {
           packages = with pkgs; [
+            # nix
             nixos-facter
             nix-index
             nurl
 
+            # iso remastering
             libisoburn
+
+            # crypto
+            age
+            sops
           ];
         };
       };
