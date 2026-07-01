@@ -49,6 +49,7 @@ in {
 
           serviceConfig = {
             Type = "oneshot";
+            StandardInput = "tty";
             StandardOutput = "tty";
             StandardError = "tty";
             TTYPath = "/dev/tty1";

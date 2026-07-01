@@ -37,5 +37,8 @@
       # We don't need to login, since both installation services require no user
       # interaction
       systemd.services."getty@tty1".enable = false;
+
+      # Don't need DHCP either since the installer is meant to be offline
+      networking.useDHCP = false;
     };
 }
