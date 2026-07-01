@@ -5,5 +5,6 @@
     ./locale.nix
     ./user.nix
     ./disk.nix
+    ./preservation.nix
   ];
 }

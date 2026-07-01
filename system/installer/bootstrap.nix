@@ -31,8 +31,9 @@ in {
     toplevel = target.config.system.build.toplevel;
     diskoScript = target.config.system.build.diskoScript;
 
-    dotFiles = "${target.config.users.users.trantorian.home}/.dotfiles";
-    sopsFiles = "${target.config.users.users.trantorian.home}/.config/sops/age";
+    home = "/persistent/${target.config.users.users.trantorian.home}";
+    dotFiles = "${home}/.dotfiles";
+    sopsFiles = "${home}/.config/sops/age";
   in
     {
       config,

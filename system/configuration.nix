@@ -9,7 +9,9 @@
   }: {
     imports = [
       ./nix
+
       inputs.disko.nixosModules.disko
+      inputs.preservation.nixosModules.default
     ];
 
     nix.settings.experimental-features = [
