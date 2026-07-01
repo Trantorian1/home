@@ -34,10 +34,17 @@ in {
             echo "Usage: patch-${name} <secret>"
           fi
 
-          xorriso -indev ${iso}/iso/${iso.isoName} \
-            -outdev ./patched-${name}.iso \
-            -boot_image any replay \
-            -map "$1" /etc/hello.txt \
+          iso=./patched-${name}.iso
+
+          if [ -e $iso ]; then
+            echo "Removing stale iso"
+            rm $iso
+          fi
+
+          xorriso -indev ${iso}/iso/${iso.isoName} `# loads the iso`                       \
+            -outdev $iso                                                                   \
+            -boot_image any replay                 `# needed to preserve boot information` \
+            -map "$1" /etc/hello.txt               `# copies the secret into the iso fs`   \
             -commit
         '';
       }))
