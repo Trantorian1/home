@@ -1,4 +1,4 @@
-{...}: {
+{config, ...}: {
   fileSystems."/nix".neededForBoot = true;
   fileSystems."/persistent".neededForBoot = true;
 
@@ -15,7 +15,7 @@
   disko.devices.disk = {
     main = {
       type = "disk";
-      device = "/dev/disk/by-path/pci-0000:00:03.0";
+      device = config.disks.main;
 
       content.type = "gpt";
 

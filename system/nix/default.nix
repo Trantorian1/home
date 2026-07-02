@@ -1,10 +1,10 @@
 {...}: {
   imports = [
+    ./disks
     ./audio.nix
     ./gnome.nix
     ./locale.nix
     ./user.nix
-    ./disk.nix
     ./preservation.nix
   ];
 }
