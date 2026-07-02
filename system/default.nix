@@ -18,11 +18,18 @@ in {
     lib,
     ...
   }: {
+    # All the systems which are available to build installation media from.
+    # Other options are derived from this attribute set.
     system.configuration = {
       qemu = self.nixosConfigurations.qemu;
       desktop = self.nixosConfigurations.desktop;
     };
 
+    # System installer configurations.
+    #
+    # This includes the 'discover' installer, which is used for the initial
+    # hardware scan on a new system, as well as the bootstrapped version of each
+    # final system configuration.
     system.installer =
       {
         discover = self.nixosConfigurations.discover;
@@ -31,6 +38,10 @@ in {
       (_name: target: util.installer.mkBoostrap target pkgs)
       config.system.configuration;
 
+    # Un-patched iso for each installation media.
+    #
+    # Each iso has to be manually patched with `nix run .#patch` to populate it
+    # with the required secret keys before being run.
     packages =
       builtins.mapAttrs
       (_name: bootstrap: bootstrap.config.system.build.images.iso)
@@ -39,6 +50,8 @@ in {
     apps = {
       patch = util.mkApp (pkgs.writeShellApplication {
         name = "patch";
+        meta.description = "Patches an iso with secret keys outside of the nix store environment";
+
         runtimeInputs = with pkgs; [busybox libisoburn];
         text = ''
           if [ "$#" -ne 2 ]; then
@@ -63,6 +76,8 @@ in {
 
       vm = util.mkApp (pkgs.writeShellApplication {
         name = "vm";
+        meta.description = "Runs a patched iso in a qemu vm";
+
         runtimeInputs = with pkgs; [qemu];
         text = ''
           if [ "$#" -ne 1 ]; then

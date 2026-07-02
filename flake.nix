@@ -1,4 +1,6 @@
 {
+  description = "Home configuration with support for custom automated offline installers";
+
   inputs = {
     nixpkgs = {
       url = "github:NixOs/nixpkgs/nixos-26.05";
