@@ -17,7 +17,6 @@
 # The target system is then rebooted into the newly applied configuration.
 {lib, ...}: {
   imports = [
-    ./options.nix
     ./discover.nix
     ./bootstrap.nix
   ];

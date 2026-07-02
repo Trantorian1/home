@@ -1,16 +1,22 @@
 {lib, ...}: {
-  perSystem = {...}: {
+  perSystem = {...}: let
+    nixosConfiguration = lib.mkOptionType {
+      name = "nixosConfiguration";
+      check = x: x._type or null == "configuration" && x.class or null == "nixos";
+      merge = lib.options.mergeUniqueOption {
+        message =
+          "an evaluated NixOS configuration cannot be merged across definitions"
+          + "; use extendModules at the definition site instead.";
+      };
+    };
+  in {
     options.system = {
-      iso = lib.mkOption {
-        type = lib.types.attrsOf lib.types.package;
+      configuration = lib.mkOption {
+        type = lib.types.attrsOf nixosConfiguration;
       };
 
-      patch = lib.mkOption {
-        type = lib.types.attrsOf lib.types.package;
-      };
-
-      vm = lib.mkOption {
-        type = lib.types.package;
+      installer = lib.mkOption {
+        type = lib.types.attrsOf nixosConfiguration;
       };
     };
   };

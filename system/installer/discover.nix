@@ -16,8 +16,8 @@
 # identification.
 {
   self,
-  config,
   inputs,
+  config,
   ...
 }: let
   util = config.util;
