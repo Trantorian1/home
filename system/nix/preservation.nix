@@ -24,6 +24,7 @@
 
       users.trantorian = {
         directories = [
+          ".config"
           ".dotfiles"
           "Documents"
         ];

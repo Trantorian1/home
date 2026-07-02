@@ -11,6 +11,7 @@
       ./nix
 
       inputs.disko.nixosModules.disko
+      inputs.sops-nix.nixosModules.sops
       inputs.preservation.nixosModules.default
       inputs.rv.nixosModules.default
     ];
@@ -48,6 +49,9 @@
 
     # Configure network connections interactively with nmcli or nmtui.
     networking.networkmanager.enable = true;
+
+    # Allow unfree packages
+    nixpkgs.config.allowUnfree = true;
 
     system.stateVersion = "26.05";
   };

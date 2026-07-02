@@ -1,9 +1,11 @@
 keys:
   - &host age1j7rndfqdreq6nnemjuq3jl7vdpvj6e5geu5vdynzjutuq8m5jd4qjvryry
   - &qemu age1gldslsgqkrhavana8cx9n36hm64umqfzqwp05xxjqucqn308nfuq6704km
+  - &laptop age1pc9fkck862kkhfc98ddrya38c9ec4047tlp3h5jdmadq99v0yyesj6439j
 creation_rules:
   - path_regex: secrets/[^/]+\.dev\.yaml$
     key_groups:
       - age:
         - *host
         - *qemu
+        - *laptop
