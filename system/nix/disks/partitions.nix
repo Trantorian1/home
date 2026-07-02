@@ -15,7 +15,7 @@
   disko.devices.disk = {
     main = {
       type = "disk";
-      device = config.disks.main;
+      device = config.installer.disks.main;
 
       content.type = "gpt";
 

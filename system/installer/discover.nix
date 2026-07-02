@@ -34,6 +34,10 @@ in {
       util.installer.mkCommonAttrs {
         imports = [inputs.sops-nix.nixosModules.sops];
 
+        image.modules.iso = {...}: {
+          image.baseName = lib.mkForce "discover";
+        };
+
         # Opens an ssh server so the result of the hardware scan can be
         # retrieved via scp
         services.openssh = {

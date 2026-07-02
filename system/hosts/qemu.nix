@@ -8,8 +8,9 @@
 
     networking.hostName = "qemu";
     hardware.facter.reportPath = ../nix/hardware/qemu.json;
+    services.spice-vdagentd.enable = true;
 
-    disks.main = "/dev/disk/by-path/pci-0000:00:03.0";
+    installer.disks.main = "/dev/disk/by-path/pci-0000:00:04.0";
   };
 
   flake.nixosConfigurations.qemu = inputs.nixpkgs.lib.nixosSystem {
