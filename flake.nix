@@ -23,6 +23,11 @@
     preservation = {
       url = "github:nix-community/preservation";
     };
+
+    rv = {
+      url = "github:trantorian1/rv";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}:

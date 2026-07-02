@@ -12,6 +12,7 @@
 
       inputs.disko.nixosModules.disko
       inputs.preservation.nixosModules.default
+      inputs.rv.nixosModules.default
     ];
 
     nix.settings.experimental-features = [
