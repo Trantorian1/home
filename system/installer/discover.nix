@@ -26,14 +26,13 @@ in {
     reportFiles = "/tmp/hardware-report";
   in
     {
+      modulesPath,
       config,
       pkgs,
       lib,
       ...
     }:
-      util.installer.mkCommonAttrs {
-        imports = [inputs.sops-nix.nixosModules.sops];
-
+      util.installer.mkCommonAttrs modulesPath {
         image.modules.iso = {...}: {
           image.baseName = lib.mkForce "discover";
         };

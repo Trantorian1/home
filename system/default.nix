@@ -23,6 +23,7 @@ in {
     system.configuration = {
       qemu = self.nixosConfigurations.qemu;
       desktop = self.nixosConfigurations.desktop;
+      laptop = self.nixosConfigurations.laptop;
     };
 
     # System installer configurations.

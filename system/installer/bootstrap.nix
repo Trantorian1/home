@@ -34,58 +34,63 @@ in {
     dotFiles = "${home}/.dotfiles";
     sopsFiles = "${home}/.config/sops/age";
 
-    bootstrap = util.installer.mkCommonAttrs {
-      # Makes the iso name recognizable per-system.
-      image.modules.iso = {...}: {
-        image.baseName = lib.mkForce target.config.networking.hostName;
-      };
+    bootstrap = {modulesPath, ...}:
+      util.installer.mkCommonAttrs modulesPath {
+        # Makes the iso name recognizable per-system.
+        image.modules.iso = {...}: {
+          image.baseName = lib.mkForce target.config.networking.hostName;
 
-      systemd.services.auto-install = {
-        description = "Auto-install NixOs system";
-
-        wantedBy = ["multi-user.target"];
-        conflicts = ["autovt@tty1.service"];
-
-        serviceConfig = {
-          Type = "oneshot";
-          StandardInput = "tty";
-          StandardOutput = "tty";
-          StandardError = "tty";
-          TTYPath = "/dev/tty1";
+          isoImage.makeBiosBootable = lib.mkForce true;
+          isoImage.makeUsbBootable = lib.mkForce true;
+          isoImage.makeEfiBootable = lib.mkForce true;
         };
 
-        path = with pkgs; [
-          nix
-          nixos-install-tools
-        ];
+        systemd.services.auto-install = {
+          description = "Auto-install NixOs system";
 
-        script = ''
-          set -euo pipefail
+          wantedBy = ["multi-user.target"];
+          conflicts = ["autovt@tty1.service"];
 
-          echo ">>> formatting + mounting"
-          ${diskoScript}
+          serviceConfig = {
+            Type = "oneshot";
+            StandardInput = "tty";
+            StandardOutput = "tty";
+            StandardError = "tty";
+            TTYPath = "/dev/tty1";
+          };
 
-          echo ">>> installing system"
-          nixos-install \
-            --system ${toplevel} \
-            --root /mnt \
-            --no-root-passwd \
-            --no-channel-copy
+          path = with pkgs; [
+            nix
+            nixos-install-tools
+          ];
 
-          echo ">>> loading configuration"
-          mkdir -p /mnt${dotFiles}
-          cp -r --no-preserve=mode ${../../.}/* /mnt${dotFiles}
-          nixos-enter --root /mnt -c "chown -R trantorian:users ${dotFiles}"
+          script = ''
+            set -euo pipefail
 
-          echo ">>> loading secrets"
-          mkdir -p /mnt${sopsFiles}
-          cp /iso/etc/keys.txt /mnt${sopsFiles}
+            echo ">>> formatting + mounting"
+            ${diskoScript}
 
-          echo ">>> install complete; rebooting"
-          systemctl reboot
-        '';
+            echo ">>> installing system"
+            nixos-install \
+              --system ${toplevel} \
+              --root /mnt \
+              --no-root-passwd \
+              --no-channel-copy
+
+            echo ">>> loading configuration"
+            mkdir -p /mnt${dotFiles}
+            cp -r --no-preserve=mode ${../../.}/* /mnt${dotFiles}
+            nixos-enter --root /mnt -c "chown -R trantorian:users ${dotFiles}"
+
+            echo ">>> loading secrets"
+            mkdir -p /mnt${sopsFiles}
+            cp /iso/etc/keys.txt /mnt${sopsFiles}
+
+            echo ">>> install complete; rebooting"
+            systemctl reboot
+          '';
+        };
       };
-    };
   in
     inputs.nixpkgs.lib.nixosSystem {
       modules = [bootstrap];

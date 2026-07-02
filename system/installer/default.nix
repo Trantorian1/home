@@ -15,14 +15,23 @@
 #      associated to it.
 #
 # The target system is then rebooted into the newly applied configuration.
-{lib, ...}: {
+{
+  inputs,
+  lib,
+  ...
+}: {
   imports = [
     ./discover.nix
     ./bootstrap.nix
   ];
 
-  util.installer.mkCommonAttrs = attr:
+  util.installer.mkCommonAttrs = modulesPath: attr:
     lib.attrsets.recursiveUpdate attr {
+      imports = [
+        "${modulesPath}/installer/cd-dvd/installation-cd-base.nix"
+        inputs.sops-nix.nixosModules.sops
+      ];
+
       system.stateVersion = "26.05";
 
       nixpkgs.hostPlatform = "x86_64-linux";
