@@ -26,7 +26,14 @@
         directories = [
           ".config"
           ".dotfiles"
+
           "Documents"
+          "Music"
+          "Pictures"
+          "Video"
+
+          ".steam"
+          ".local/share/Steam"
         ];
       };
     };

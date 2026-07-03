@@ -67,8 +67,10 @@ in {
             rm "$iso"
           fi
 
-          xorriso -indev "$1"       `# loads the iso`                       \
-            -outdev "$iso"                                                  \
+          echo "Copying over iso"
+          cp "$1" "$iso"
+
+          xorriso -dev "$iso"       `# loads the iso`                       \
             -boot_image any replay  `# needed to preserve boot information` \
             -map "$2" /etc/keys.txt `# copies the secret into the iso fs`   \
             -commit

@@ -14,4 +14,7 @@
   services.gnome.core-apps.enable = false;
   environment.gnome.excludePackages = [pkgs.gnome-tour];
   services.xserver.excludePackages = [pkgs.xterm];
+
+  # Add back nautilus for file picking
+  environment.systemPackages = [pkgs.nautilus];
 }
