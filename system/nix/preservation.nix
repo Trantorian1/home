@@ -28,6 +28,7 @@
 
           ".config/sops/age"
           ".config/discord"
+          ".config/zen"
 
           "Documents"
           "Music"
