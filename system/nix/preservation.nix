@@ -24,8 +24,10 @@
 
       users.dev = {
         directories = [
-          ".config"
           ".dotfiles"
+
+          ".config/sops/age"
+          ".config/discord"
 
           "Documents"
           "Music"

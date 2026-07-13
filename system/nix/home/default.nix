@@ -14,7 +14,7 @@
   home-manager.users.dev = {pkgs, ...}: {
     imports = [
       ./ghostty.nix
-      ./librewolf.nix
+      ./zen-browser.nix
       ./fish.nix
       ./lsd.nix
       ./git.nix

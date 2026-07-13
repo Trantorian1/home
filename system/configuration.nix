@@ -17,6 +17,8 @@
       inputs.rv.nixosModules.default
     ];
 
+    home-manager.extraSpecialArgs = {inherit (inputs) zen-browser;};
+
     nix.settings.experimental-features = [
       "nix-command"
       "flakes"
