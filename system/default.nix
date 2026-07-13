@@ -55,6 +55,11 @@ in {
 
         runtimeInputs = with pkgs; [busybox libisoburn];
         text = ''
+          if [ "$EUID" -ne 0 ]
+            then echo "ISO patch phase must be run as root!"
+            exit 1
+          fi
+
           if [ "$#" -ne 2 ]; then
             echo "Usage: patch <iso> <secret>"
           fi

@@ -22,7 +22,7 @@
         "/etc/NetworkManager/system-connections"
       ];
 
-      users.trantorian = {
+      users.dev = {
         directories = [
           ".config"
           ".dotfiles"

@@ -3,34 +3,33 @@
   pkgs,
   ...
 }: {
-  users.users.trantorian = {
+  imports = [./home];
+
+  # Needed since the user's default shell is set to `fish`.
+  programs.fish.enable = true;
+
+  users.users.dev = {
     isNormalUser = true;
     extraGroups = ["wheel"];
 
     hashedPassword = "$y$j9T$0E2R1pahxLXhm/m.QVc3x/$bFX5ytzlz2Uh.3YrOA6udtw3rRQO1iYj6pB4cgsLfq1";
 
-    packages = with pkgs; [
-      ghostty
+    # Do not set user packages here! Use home-manager instead.
+    # See `home/default.nix` for more information.
+    #
+    # packages = with pkgs; [];
 
-      config.rv.nvim
-      config.rv.editor
-
-      discord
-      librewolf
-      typora
-
-      proton-pass
-    ];
+    shell = pkgs.fish;
   };
 
   users.mutableUsers = false;
 
   # Auto-login user
   services.displayManager.defaultSession = "gnome";
-  services.displayManager.autoLogin.user = "trantorian";
+  services.displayManager.autoLogin.user = "dev";
 
   # Make config available in home directory
-  environment.etc.nixos.source = "${config.users.users.trantorian.home}/.dotfiles";
+  environment.etc.nixos.source = "${config.users.users.dev.home}/.dotfiles";
 
   programs.steam.enable = true;
 }

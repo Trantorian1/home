@@ -1,5 +1,5 @@
 {config, ...}: let
-  home = config.users.users.trantorian.home;
+  home = config.users.users.dev.home;
 in {
   sops.age = {
     keyFile = "/persistent/${home}/.config/sops/age/keys.txt";
@@ -8,7 +8,7 @@ in {
 
   sops.secrets."host/qemu" = {
     sopsFile = ../../secrets/ssh.dev.yaml;
-    owner = config.users.users.trantorian.name;
+    owner = config.users.users.dev.name;
     path = "${home}/.ssh/id_rsa";
   };
 }

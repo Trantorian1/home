@@ -30,7 +30,7 @@ in {
     toplevel = target.config.system.build.toplevel;
     diskoScript = target.config.system.build.diskoScript;
 
-    home = "/persistent/${target.config.users.users.trantorian.home}";
+    home = "/persistent/${target.config.users.users.dev.home}";
     dotFiles = "${home}/.dotfiles";
     sopsFiles = "${home}/.config/sops/age";
 
@@ -80,7 +80,7 @@ in {
             echo ">>> loading configuration"
             mkdir -p /mnt${dotFiles}
             cp -r --no-preserve=mode ${../../.}/* /mnt${dotFiles}
-            nixos-enter --root /mnt -c "chown -R trantorian:users ${dotFiles}"
+            nixos-enter --root /mnt -c "chown -R dev:users ${dotFiles}"
 
             echo ">>> loading secrets"
             mkdir -p /mnt${sopsFiles}

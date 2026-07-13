@@ -13,6 +13,7 @@
       inputs.disko.nixosModules.disko
       inputs.sops-nix.nixosModules.sops
       inputs.preservation.nixosModules.default
+      inputs.home-manager.nixosModules.home-manager
       inputs.rv.nixosModules.default
     ];
 
@@ -35,11 +36,6 @@
       })
     ];
     nix.package = pkgs.lixPackageSets.stable.lix;
-
-    # Default software in use by all users
-    environment.systemPackages = with pkgs; [
-      git
-    ];
 
     # Use the grub boot loader.
     boot.loader.grub.enable = true;
