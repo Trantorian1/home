@@ -48,6 +48,11 @@
     # Configure network connections interactively with nmcli or nmtui.
     networking.networkmanager.enable = true;
 
+    # Used by noctalia
+    hardware.bluetooth.enable = true;
+    services.power-profiles-daemon.enable = true;
+    services.upower.enable = true;
+
     # Allow unfree packages
     nixpkgs.config.allowUnfree = true;
 
