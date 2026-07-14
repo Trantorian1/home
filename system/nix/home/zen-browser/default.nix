@@ -1,9 +1,9 @@
 {
   zen-browser,
   modulesPath,
+  config,
   pkgs,
   lib,
-  home,
   ...
 }: let
   mkFirefox = import "${modulesPath}/programs/firefox/mkFirefoxModule.nix";
@@ -64,7 +64,7 @@ in {
       DontCheckDefaultBrowser = true;
       HardwareAcceleration = true;
       OfferToSaveLogins = false;
-      DefaultDownloadDirectory = "${home}/Downloads";
+      DefaultDownloadDirectory = "${config.home.homeDirectory}/Downloads";
     };
 
     profiles.default = {

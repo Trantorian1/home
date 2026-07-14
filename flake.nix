@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs = {
-      url = "github:NixOs/nixpkgs/nixos-26.05";
+      url = "github:NixOs/nixpkgs/nixos-unstable";
     };
 
     flake-parts = {
@@ -23,7 +23,7 @@
     home-manager = {
       # CAUTION: this needs to be kept in sync with the version of `nixpkgs`
       # being used
-      url = "github:nix-community/home-manager/release-26.05";
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
