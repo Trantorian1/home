@@ -14,8 +14,8 @@
   home-manager.users.dev = {pkgs, ...}: {
     imports = [
       ./niri
-      ./noctalia
       ./zen-browser
+      ./noctalia.nix
       ./ghostty.nix
       ./fish.nix
       ./lsd.nix

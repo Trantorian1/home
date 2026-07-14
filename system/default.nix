@@ -75,9 +75,12 @@ in {
           echo "Copying over iso"
           cp "$1" "$iso"
 
-          xorriso -dev "$iso"       `# loads the iso`                       \
-            -boot_image any replay  `# needed to preserve boot information` \
-            -map "$2" /etc/keys.txt `# copies the secret into the iso fs`   \
+          xorriso -dev "$iso"                     `# loads the iso`                                \
+            -boot_image any replay                `# needed to preserve boot information`          \
+            -map "$2"       /etc/patch/keys.txt   `# copies secret into the iso fs as primary key` \
+            -map ./secrets  /etc/patch/secrets    `# copies remaining secrets`                     \
+            -map .git       /etc/patch/.git       `# copies git repo info`                         \
+            -map .gitignore /etc/patch/.gitignore                                                  \
             -commit
         '';
       });
