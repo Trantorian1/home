@@ -6,9 +6,10 @@
   programs.ssh = {
     enable = true;
     matchBlocks = {
-      github = {
-        hostname = "ssh.github.com";
+      "github.com" = {
+        user = "git";
         identityFile = "~/.ssh/github";
+        identitiesOnly = true;
       };
     };
   };
