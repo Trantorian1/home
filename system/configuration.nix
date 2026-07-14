@@ -17,7 +17,7 @@
       inputs.rv.nixosModules.default
     ];
 
-    home-manager.extraSpecialArgs = {inherit (inputs) zen-browser;};
+    home-manager.extraSpecialArgs = {inherit (inputs) zen-browser noctalia;};
 
     nix.settings.experimental-features = [
       "nix-command"

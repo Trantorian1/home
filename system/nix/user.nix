@@ -8,6 +8,8 @@
   # Needed since the user's default shell is set to `fish`.
   programs.fish.enable = true;
 
+  programs.niri.enable = true;
+
   users.users.dev = {
     isNormalUser = true;
     extraGroups = ["wheel"];
@@ -25,9 +27,13 @@
   users.mutableUsers = false;
 
   # Auto-login user
-  services.displayManager.defaultSession = "gnome";
-  services.displayManager.autoLogin.user = "dev";
-
+  services.greetd = {
+    enable = true;
+    settings.default_session = {
+      command = "${pkgs.niri}/bin/niri-session";
+      user = "dev";
+    };
+  };
   # Make config available in home directory
   environment.etc.nixos.source = "${config.users.users.dev.home}/.dotfiles";
 

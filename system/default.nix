@@ -104,8 +104,8 @@ in {
             -smp 4 \
             -drive file=drive.img,format=qcow2,if=virtio \
             -nic user,model=virtio-net-pci,hostfwd=tcp::2222-:22 \
-            -device virtio-vga \
-            -display gtk \
+            -device virtio-vga-gl \
+            -display gtk,gl=on \
             -device virtio-serial-pci \
             -chardev qemu-vdagent,id=vdagent,name=vdagent,clipboard=on \
             -device virtserialport,chardev=vdagent,name=com.redhat.spice.0 \
