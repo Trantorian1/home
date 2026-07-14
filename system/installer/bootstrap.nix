@@ -33,6 +33,7 @@ in {
     home = "/persistent/${target.config.users.users.dev.home}";
     dotFiles = "${home}/.dotfiles";
     sopsFiles = "${home}/.config/sops/age";
+    patchFiles = "/iso/etc/patch";
 
     bootstrap = {modulesPath, ...}:
       util.installer.mkCommonAttrs modulesPath {
@@ -80,11 +81,17 @@ in {
             echo ">>> loading configuration"
             mkdir -p /mnt${dotFiles}
             cp -r --no-preserve=mode ${../../.}/* /mnt${dotFiles}
-            nixos-enter --root /mnt -c "chown -R dev:users ${dotFiles}"
 
-            echo ">>> loading secrets"
+            echo ">>> patching installation"
             mkdir -p /mnt${sopsFiles}
-            cp /iso/etc/keys.txt /mnt${sopsFiles}
+            cp ${patchFiles}/keys.txt /mnt${sopsFiles}
+            cp -r ${patchFiles}/secrets /mnt${dotFiles}
+            cp -r ${patchFiles}/.git /mnt${dotFiles}
+            cp ${patchFiles}/.gitignore /mnt${dotFiles}
+
+            echo ">>> updating permission"
+            nixos-enter --root /mnt -c "chown -R dev:users ${dotFiles}"
+            nixos-enter --root /mnt -c "chown -R dev:users ${sopsFiles}"
 
             echo ">>> install complete; rebooting"
             systemctl reboot

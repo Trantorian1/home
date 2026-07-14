@@ -22,11 +22,14 @@
       ./git.nix
       ./obs.nix
       ./bat.nix
+      ./ssh.nix
     ];
 
     home.packages = with pkgs; [
       config.rv.nvim
       config.rv.editor
+
+      gnumake
 
       proton-pass
       protonmail-desktop

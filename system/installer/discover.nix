@@ -65,10 +65,10 @@ in {
         # NEVER be copied over to the nix store, as from there it can be read
         # by any other derivation! To avoid this, we reference the key by it's
         # absolute path in the final ISO, which does not copy it as part of the
-        # derivation process. Instead, `/iso/etc/keys.txt` has to be manually
-        # patched into the 'discover' installation media via `patch-discover`.
+        # derivation process. Instead, `/iso/etc/patch/keys.txt` has to be
+        # manually patched into the 'discover' installation media via `patch`.
         sops.age = {
-          keyFile = "/iso/etc/keys.txt";
+          keyFile = "/iso/etc/patch/keys.txt";
           generateKey = false;
         };
 

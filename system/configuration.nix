@@ -11,12 +11,12 @@
       ./nix
 
       inputs.disko.nixosModules.disko
-      inputs.sops-nix.nixosModules.sops
       inputs.preservation.nixosModules.default
       inputs.home-manager.nixosModules.home-manager
       inputs.rv.nixosModules.default
     ];
 
+    home-manager.sharedModules = [inputs.sops-nix.homeManagerModules.sops];
     home-manager.extraSpecialArgs = {inherit (inputs) zen-browser noctalia;};
 
     nix.settings.experimental-features = [
