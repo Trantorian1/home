@@ -13,8 +13,8 @@
   # system-wide user settings need to be specified in `user.nix` instead.
   home-manager.users.dev = {pkgs, ...}: {
     imports = [
+      ./zen-browser
       ./ghostty.nix
-      ./zen-browser.nix
       ./fish.nix
       ./lsd.nix
       ./git.nix
