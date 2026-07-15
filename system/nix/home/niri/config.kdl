@@ -110,6 +110,9 @@ input {
 // Find more information on the wiki:
 // https://niri-wm.github.io/niri/Configuration:-Layout
 layout {
+    // By default, niri only creates an empty workspace at the bottom
+    empty-workspace-above-first
+
     // Set gaps around windows in logical pixels.
     gaps 16
 
@@ -300,7 +303,7 @@ debug {
 // https://niri-wm.github.io/niri/Configuration:-Animations
 animations {
     // Uncomment to turn off all animations.
-    // off
+    off
 
     // Slow down all animations by this factor. Values below 1 speed them up instead.
     // slowdown 3.0
