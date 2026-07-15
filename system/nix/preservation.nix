@@ -26,8 +26,8 @@
         directories = [
           ".dotfiles"
 
-          ".ssh/known_hosts"
           ".local/share/keyrings"
+          ".ssh"
 
           ".config/sops/age"
           ".config/discord"
