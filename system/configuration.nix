@@ -45,6 +45,8 @@
     boot.loader.grub.efiInstallAsRemovable = true;
     boot.loader.timeout = lib.mkForce 5;
 
+    boot.zfs.forceImportRoot = false;
+
     # Configure network connections interactively with nmcli or nmtui.
     networking.networkmanager.enable = true;
 
