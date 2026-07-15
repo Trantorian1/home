@@ -26,9 +26,14 @@
         directories = [
           ".dotfiles"
 
+          ".ssh/known_hosts"
+          ".local/share/keyrings"
+
           ".config/sops/age"
           ".config/discord"
           ".config/zen"
+          ".config/Proton Mail"
+          ".config/Proton Pass"
 
           "Documents"
           "Music"

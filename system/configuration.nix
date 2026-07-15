@@ -47,6 +47,10 @@
 
     boot.zfs.forceImportRoot = false;
 
+    # Use gnome-keyring for login
+    services.gnome.gnome-keyring.enable = true;
+    security.pam.services.greetd.enableGnomeKeyring = true; # match your login manager
+
     # Configure network connections interactively with nmcli or nmtui.
     networking.networkmanager.enable = true;
 
