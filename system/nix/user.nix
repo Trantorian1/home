@@ -12,6 +12,8 @@
   programs.niri.enable = true;
   programs.dconf.enable = true;
 
+  environment.systemPackages = [pkgs.xwayland-satellite];
+
   users.users.dev = {
     isNormalUser = true;
     extraGroups = ["wheel" "networkmanager"];
