@@ -16,7 +16,7 @@
       shell.setup_wizard_enabled = false;
 
       # Disable all animations
-      shell.animation = false;
+      shell.animation.enabled = false;
 
       # Top bar configuration
       bar.default.enabled = false;
