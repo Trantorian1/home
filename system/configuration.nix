@@ -42,7 +42,7 @@
     # Use the grub boot loader.
     boot.loader.grub.enable = true;
     boot.loader.grub.efiSupport = true;
-    boot.loader.grub.efiInstallAsRemovable = true;
+    boot.loader.grub.efiInstallAsRemovable = lib.mkDefault true;
     boot.loader.timeout = lib.mkForce 5;
 
     boot.zfs.forceImportRoot = false;
