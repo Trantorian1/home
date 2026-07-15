@@ -30,6 +30,7 @@
       config.rv.editor
 
       gnumake
+      nautilus
 
       proton-pass
       protonmail-desktop

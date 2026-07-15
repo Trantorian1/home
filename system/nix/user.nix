@@ -8,7 +8,9 @@
   # Needed since the user's default shell is set to `fish`.
   programs.fish.enable = true;
 
+  # Required by noctalia
   programs.niri.enable = true;
+  programs.dconf.enable = true;
 
   users.users.dev = {
     isNormalUser = true;
