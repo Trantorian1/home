@@ -11,10 +11,6 @@
 
     # Imperative nix version of `noctalia config export`
     settings = {
-      # Automatic theming for applications built with GTK, Qt, and KDE Plasma
-      # toolkits
-      theme.templates.builtin_ids = ["gtk4"];
-
       # Disables startup greeter.
       # This needs to be set manually as we are using impermanence.
       shell.setup_wizard_enabled = false;
@@ -24,6 +20,22 @@
 
       # Top bar configuration
       bar.default.enabled = false;
+
+      # Outer wilds wallpaper
+      wallpaper.default.path = ../../../wallpaper.png;
+
+      theme = {
+        # Automatic theming for applications built with GTK, Qt, and KDE Plasma
+        # toolkits
+        templates.builtin_ids = ["gtk4"];
+
+        # Color scheme
+        builtin = "Catppuccin";
+        mode = "auto";
+        pure_black_dark = true;
+
+        wallpaper_scheme = "m3-content";
+      };
 
       # See https://docs.noctalia.dev/v5/plugins/
       plugins = {
