@@ -41,6 +41,8 @@
 
       vlc
       sioyek
+
+      bambu-studio
     ];
 
     # The state version is required and should stay at the version you
