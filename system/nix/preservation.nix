@@ -33,7 +33,6 @@
           ".config/discord"
           ".config/zen"
           ".config/Proton Mail"
-          ".config/Proton Pass"
 
           "Documents"
           "Music"

@@ -173,4 +173,32 @@ in {
       platforms = platforms.all;
     };
   };
+
+  proton-pass = buildMozillaXpiAddon {
+    pname = "proton-pass";
+    version = "1.38.0";
+    addonId = "78272b6fa58f4a1abaac99321d503a20@proton.me";
+    url = "https://addons.mozilla.org/firefox/downloads/file/4885390/proton_pass-1.38.0.xpi";
+    sha256 = "225b96360b51b7756b2615432214fc0f4d93e9c3030ab4a864b1e07826eef9db";
+    meta = with lib; {
+      homepage = "https://proton.me";
+      description = "Free and unlimited password manager to keep your login credentials safe and manage them directly in your browser.";
+      license = licenses.gpl3;
+      mozPermissions = [
+        "activeTab"
+        "alarms"
+        "scripting"
+        "storage"
+        "unlimitedStorage"
+        "webNavigation"
+        "webRequest"
+        "webRequestBlocking"
+        "https://*/*"
+        "http://*/*"
+        "https://account.proton.me/*"
+        "https://pass.proton.me/*"
+      ];
+      platforms = platforms.all;
+    };
+  };
 }

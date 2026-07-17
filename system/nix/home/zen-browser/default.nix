@@ -112,6 +112,7 @@ in {
         extensions.ublock-origin
         extensions.sponsorblock
         extensions.return-youtube-dislikes
+        extensions.proton-pass
       ];
 
       # Bookmarks

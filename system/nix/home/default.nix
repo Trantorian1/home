@@ -32,7 +32,6 @@
       gnumake
       nautilus
 
-      proton-pass
       protonmail-desktop
       discord
 
