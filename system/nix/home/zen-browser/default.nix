@@ -53,6 +53,7 @@ in {
       DisableTelemetry = true;
       DisableFormHistory = true;
       DisablePasswordReveal = true;
+      PasswordManagerEnabled = false;
 
       # Access Restrictions
       BlockAboutConfig = false;
@@ -97,6 +98,11 @@ in {
         # Disable import bookmarks
         "browser.bookmarks.addedImportButton" = false;
         "browser.toolbars.bookmarks.visibility" = "always";
+
+        # Disable password popups
+        "signon.generation.enabled" = false;
+        "signon.autofillForms" = false;
+        "signon.rememberSignons" = false;
 
         # Homepage
         "browser.startup.homepage" = lib.strings.join "|" [
