@@ -1,6 +1,8 @@
 {
   noctalia,
+  osConfig,
   pkgs,
+  lib,
   ...
 }: {
   imports = [noctalia.homeModules.default];
@@ -18,11 +20,33 @@
       # Disable all animations
       shell.animation.enabled = false;
 
-      # Top bar configuration
-      bar.default.enabled = false;
-
       # Outer wilds wallpaper
       wallpaper.default.path = ../../../wallpaper.png;
+
+      # A minimal bar showing only battery info on hover, hidden otherwise
+      # Battery display is disabled if not on a laptop.
+      bar.default = {
+        enabled = true;
+        auto_hide = true;
+
+        color = "on_surface";
+        background_opacity = 0.0;
+        margin_edge = 10;
+        margin_ends = 0;
+        reserve_space = false;
+        shadow = false;
+
+        capsule = true;
+        capsule_fill = "surface";
+        capsule_padding = 10.0;
+
+        start = [];
+        center =
+          lib.mkIf
+          (osConfig.networking.hostName == "laptop")
+          ["battery"];
+        end = [];
+      };
 
       theme = {
         # Automatic theming for applications built with GTK, Qt, and KDE Plasma
