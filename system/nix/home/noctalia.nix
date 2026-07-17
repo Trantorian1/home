@@ -55,14 +55,16 @@
           }
           // common;
 
-        media = {
-          enabled = true;
-          position = "bottom";
+        media =
+          {
+            enabled = true;
+            position = "bottom";
 
-          start = [];
-          center = ["media"];
-          end = [];
-        };
+            start = [];
+            center = ["media"];
+            end = [];
+          }
+          // common;
       };
 
       theme = {
