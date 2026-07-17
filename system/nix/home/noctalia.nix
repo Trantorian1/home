@@ -2,7 +2,6 @@
   noctalia,
   osConfig,
   pkgs,
-  lib,
   ...
 }: {
   imports = [noctalia.homeModules.default];
@@ -25,27 +24,45 @@
 
       # A minimal bar showing only battery info on hover, hidden otherwise
       # Battery display is disabled if not on a laptop.
-      bar.default = {
-        enabled = true;
-        auto_hide = true;
+      bar = let
+        common = {
+          auto_hide = true;
 
-        color = "on_surface";
-        background_opacity = 0.0;
-        margin_edge = 10;
-        margin_ends = 0;
-        reserve_space = false;
-        shadow = false;
+          color = "on_surface";
+          background_opacity = 0.0;
+          margin_edge = 10;
+          margin_ends = 0;
+          reserve_space = false;
+          shadow = false;
 
-        capsule = true;
-        capsule_fill = "surface";
-        capsule_padding = 10.0;
+          capsule = true;
+          capsule_fill = "surface";
+          capsule_padding = 10.0;
+        };
+      in {
+        order = [
+          "default"
+          "media"
+        ];
 
-        start = [];
-        center =
-          lib.mkIf
-          (osConfig.networking.hostName == "laptop")
-          ["battery"];
-        end = [];
+        default =
+          {
+            enabled = osConfig.networking.hostName == "laptop";
+
+            start = [];
+            center = ["battery"];
+            end = [];
+          }
+          // common;
+
+        media = {
+          enabled = true;
+          position = "bottom";
+
+          start = [];
+          center = ["media"];
+          end = [];
+        };
       };
 
       theme = {
@@ -77,6 +94,53 @@
             }}";
           }
         ];
+      };
+
+      # Audio visualizer
+      desktop_widgets = {
+        schema_version = 2;
+        widget_order = [
+          "desktop-widget-0000000000000001"
+          "desktop-widget-0000000000000002"
+        ];
+
+        grid = {
+          cell_size = 16;
+          major_interval = 4;
+          visible = true;
+        };
+
+        widget = {
+          desktop-widget-0000000000000001 = {
+            type = "fancy_audio_visualizer";
+
+            cx = 1280.0;
+            cy = 720.0;
+
+            box_height = 784.0;
+            box_width = 736.0;
+
+            settings = {
+              background = false;
+            };
+          };
+
+          desktop-widget-0000000000000002 = {
+            type = "audio_visualizer";
+
+            cx = 1280.0;
+            cy = 720.0;
+
+            box_height = 0.0;
+            box_width = 0.0;
+
+            settings = {
+              background = false;
+              show_when_idle = false;
+              bands = 32;
+            };
+          };
+        };
       };
 
       # A simple lockscreen with only a centered login bar
