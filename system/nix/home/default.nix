@@ -31,6 +31,7 @@
 
       gnumake
       nautilus
+      wireshark
 
       protonmail-desktop
       discord
