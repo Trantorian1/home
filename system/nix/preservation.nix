@@ -33,6 +33,7 @@
           ".config/discord"
           ".config/zen"
           ".config/Proton Mail"
+          ".config/BambuStudio"
 
           "Documents"
           "Music"
