@@ -23,27 +23,34 @@
       ./obs.nix
       ./bat.nix
       ./ssh.nix
+      ./obsidian.nix
     ];
 
     home.packages = with pkgs; [
       config.rv.nvim
       config.rv.editor
 
+      # Core
       gnumake
+
+      # Media
       nautilus
-      wireshark
+      loupe
+      vlc
 
-      protonmail-desktop
-      discord
-
+      # Writing
       typora
+      sioyek
+
+      # Visual editing
       inkscape
       gimp
 
-      vlc
-      sioyek
-
+      # User apps
+      protonmail-desktop
+      discord
       bambu-studio
+      wireshark
     ];
 
     # The state version is required and should stay at the version you
