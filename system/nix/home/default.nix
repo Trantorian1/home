@@ -27,11 +27,13 @@
     ];
 
     home.packages = with pkgs; [
-      config.rv.nvim
-      config.rv.editor
-
       # Core
       gnumake
+
+      # Coding
+      config.rv.nvim
+      config.rv.editor
+      codecrafters-cli
 
       # Media
       nautilus
