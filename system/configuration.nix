@@ -20,7 +20,7 @@
     rv.runtimeDeps = with pkgs; [cargo-bolero];
 
     home-manager.sharedModules = [inputs.sops-nix.homeManagerModules.sops];
-    home-manager.extraSpecialArgs = {inherit (inputs) zen-browser noctalia;};
+    home-manager.extraSpecialArgs = {inherit (inputs) zen-browser noctalia rust-overlay kani-repo kani-tarball;};
 
     nix.settings.experimental-features = [
       "nix-command"
