@@ -16,6 +16,9 @@
       inputs.rv.nixosModules.default
     ];
 
+    # TODO: it would be nice to move this to a home-manager configuration instead.
+    rv.runtimeDeps = with pkgs; [cargo-bolero];
+
     home-manager.sharedModules = [inputs.sops-nix.homeManagerModules.sops];
     home-manager.extraSpecialArgs = {inherit (inputs) zen-browser noctalia;};
 

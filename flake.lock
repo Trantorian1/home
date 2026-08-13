@@ -179,11 +179,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1784112178,
-        "narHash": "sha256-xytCTXevgymDHwTm+1Vv4Cqt5t9CshwGYm/1OQ/1mDc=",
+        "lastModified": 1786618259,
+        "narHash": "sha256-YL1KR29HhxHtTUop0SXXCIuwUppGNpRy+lzB5Wb54pI=",
         "owner": "trantorian1",
         "repo": "rv",
-        "rev": "5c716f24fbac49e865c3fcb243444aa524b4ce97",
+        "rev": "0e5b16ff4a42f5ae6eb45ee09cd248167589a4d3",
         "type": "github"
       },
       "original": {
