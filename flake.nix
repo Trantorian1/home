@@ -62,8 +62,15 @@
     # tied to this exact tree: letting the input move on its own would leave
     # them stale. Bumping Kani means moving this `rev` and refreshing those
     # hashes together. The toolchain follows the checkout on its own.
+    #
+    # This has to go through the git fetcher rather than `github:`, which cannot
+    # fetch submodules: `kani-compiler` declares `charon` as a path dependency,
+    # and cargo insists on reading a path dependency's manifest to resolve the
+    # workspace even when -- as here -- the feature gating it is switched off.
+    # Note that the fetch is deliberately not shallow, since a shallow fetch
+    # only carries the branch tip and `rev` is pinned behind it.
     kani-repo = {
-      url = "github:model-checking/kani/2bf550f91c76e6ef439f742cb7963f26d2925678";
+      url = "git+https://github.com/model-checking/kani?ref=main&rev=2bf550f91c76e6ef439f742cb7963f26d2925678&submodules=1";
       flake = false;
     };
   };
