@@ -53,17 +53,17 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Kani is built from source, but the CBMC toolchain and pre-compiled Kani
-    # libraries it drives are grafted in from the matching release bundle. Both
-    # inputs need to stay in sync with the `version` in
-    # `system/nix/home/kani/package.nix`.
+    # Kani is built from source off `main` rather than from a release, so that
+    # experimental features which have not made a stable release yet are
+    # available.
+    #
+    # The revision is pinned here rather than left to float on `main`, because
+    # the vendored dependency hashes in `system/nix/home/kani/package.nix` are
+    # tied to this exact tree: letting the input move on its own would leave
+    # them stale. Bumping Kani means moving this `rev` and refreshing those
+    # hashes together. The toolchain follows the checkout on its own.
     kani-repo = {
-      url = "git+https://github.com/model-checking/kani?ref=refs/tags/kani-0.66.0&rev=b37b90f4081da4e4194b1c8a728c117128d5e06e&submodules=1";
-      flake = false;
-    };
-
-    kani-tarball = {
-      url = "https://github.com/model-checking/kani/releases/download/kani-0.66.0/kani-0.66.0-x86_64-unknown-linux-gnu.tar.gz";
+      url = "github:model-checking/kani/2bf550f91c76e6ef439f742cb7963f26d2925678";
       flake = false;
     };
   };

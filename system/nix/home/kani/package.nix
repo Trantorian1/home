@@ -1,114 +1,104 @@
-# Kani is not in nixpkgs and cannot simply be built from source: `kani-driver`
-# shells out to CBMC, a SAT solver and a set of Rust libraries which must be
-# compiled by the *exact* nightly rustc that Kani links against. Upstream works
-# around this by having the `kani` and `cargo-kani` binaries act as proxies
-# which download a release bundle into `~/.kani` on first use -- something we
-# cannot do from a read-only, offline Nix store.
+# Kani built from source, off `main`, so that experimental features (loop
+# decrease contracts and friends) that have not made a stable release yet are
+# available.
 #
-# So we assemble that bundle ourselves instead:
+# Kani is not in nixpkgs, and its own instructions assume a rustup toolchain and
+# a writable `~/.kani`. What upstream's `cargo build-dev` produces is a sysroot
+# under `target/kani` laid out exactly like the release bundle, so the work here
+# is to run that build in the sandbox and then install the result:
 #
-#   1. `kaniHome` takes the upstream release bundle -- which carries CBMC,
-#      kissat, goto-cc and the pre-compiled Kani libraries -- and patches its
-#      binaries to link against nixpkgs' libraries.
-#   2. `kani-compiler` and the `kani` / `cargo-kani` proxies are built from
-#      source against the dated nightly toolchain Kani pins, taken from
-#      `rust-overlay`.
-#   3. The proxies are wrapped with `KANI_HOME` pointing at the bundle from (1),
-#      so they consider Kani already set up and never try to download anything.
+#   1. The toolchain comes from `rust-overlay`, read straight out of the
+#      checkout's `rust-toolchain.toml` -- Kani links against `rustc_driver`, so
+#      the nightly has to match the source exactly.
+#   2. `cargo build-dev` builds the binaries and then compiles Kani's libraries
+#      against the standard library with `-Z build-std`. That pulls in crates
+#      from `rust-src`'s own lockfile, which is why the vendor tree below is a
+#      merge of two.
+#   3. CBMC and kissat come from nixpkgs rather than a downloaded bundle, and
+#      are linked into the sysroot's `bin` where `kani-driver` looks for them.
+#   4. The `kani` / `cargo-kani` proxies are wrapped with `KANI_HOME` pointing at
+#      that sysroot, so they consider Kani set up and never try to download it.
 #
-# Based on the packaging attempt documented in
-# <https://discourse.nixos.org/t/packaging-kani-rust-verifier/43957> and its
-# conclusion at <https://github.com/gleachkr/nix-tools/blob/main/kani/default.nix>.
+# Bumping Kani is `nix flake update kani-repo`, plus refreshing `cargoHash`.
 {
   lib,
-  # `pkgs.extend`. Kani needs a dated nightly toolchain, and there is no reason
-  # to leak `rust-overlay` into the rest of the system's package set to get one.
+  # `pkgs.extend`, used to apply `rust-overlay` locally: Kani needs a dated
+  # nightly toolchain and there is no reason to leak that into the system's
+  # package set.
   extend,
   stdenv,
-  autoPatchelfHook,
-  glibc,
+  runCommand,
+  cbmc,
+  kissat,
   makeWrapper,
-  rsync,
   rust-overlay,
   kani-repo,
-  kani-tarball,
 }: let
-  # Must be kept in sync with the `kani-repo` and `kani-tarball` flake inputs.
-  # `cargoHash` below has to be refreshed whenever this changes.
-  version = "0.66.0";
-
   inherit (stdenv.hostPlatform) config;
+
+  # The `kani-verifier` proxies resolve their installation as
+  # `$KANI_HOME/kani-<version>`, where the version is baked in at compile time
+  # from the crate manifest. Read it from the same manifest so the layout we
+  # install always matches what they will go looking for.
+  kaniVersion = (lib.importTOML "${kani-repo}/Cargo.toml").package.version;
+
+  # `main` is a moving target, so identify the build by the revision's date on
+  # top of the version it is working towards.
+  srcDate = let
+    d = kani-repo.lastModifiedDate;
+  in "${lib.substring 0 4 d}-${lib.substring 4 2 d}-${lib.substring 6 2 d}";
+
+  version = "${kaniVersion}-unstable-${srcDate}";
 
   rustPkgs = extend rust-overlay.overlays.default;
 
-  # The release bundle records the toolchain it was built with as
-  # `nightly-<date>-<target triple>`. `kani-compiler` links against that
-  # toolchain's `librustc_driver-<hash>.so`, so the two have to match exactly;
-  # reading the date back out of the bundle keeps them from drifting apart on a
-  # version bump.
-  rustNightly =
-    lib.removePrefix "nightly-"
-    (lib.removeSuffix "-${config}" (lib.fileContents "${kani-tarball}/rust-toolchain-version"));
-
-  toolchain = rustPkgs.rust-bin.nightly.${rustNightly}.default.override {
-    extensions = [
-      "llvm-tools"
-      "rustc-dev"
-      "rust-src"
-      "rustfmt"
-    ];
-  };
+  # Kani pins its nightly in `rust-toolchain.toml` and links against that exact
+  # `rustc_driver`; taking the toolchain from the file means it follows the
+  # source across bumps instead of having to be tracked by hand.
+  toolchainChannel = (lib.importTOML "${kani-repo}/rust-toolchain.toml").toolchain.channel;
+  toolchain = rustPkgs.rust-bin.fromRustupToolchainFile "${kani-repo}/rust-toolchain.toml";
 
   rustPlatform = rustPkgs.makeRustPlatform {
     cargo = toolchain;
     rustc = toolchain;
   };
 
-  # The release bundle, minus `kani-compiler`: the shipped binary keeps a
-  # `DT_NEEDED` on `librustc_driver-<hash>.so` resolved through the rustup
-  # toolchain it was built on, which `autoPatchelfHook` has no way of finding.
-  # We build our own from source further down. Everything else in the bundle
-  # only needs libc, libgcc_s, libm and libstdc++.
-  kaniHome = stdenv.mkDerivation {
-    pname = "kani-home";
-    inherit version;
-
-    # Already unpacked: `kani-tarball` is a `flake = false` tarball input.
-    src = kani-tarball;
-    dontUnpack = true;
-    dontConfigure = true;
-    dontBuild = true;
-
-    nativeBuildInputs = [
-      autoPatchelfHook
-      rsync
-    ];
-
-    # `libstdc++` and `libgcc_s`, needed by CBMC and its tooling.
-    buildInputs = [stdenv.cc.cc.lib];
-
-    # `autoPatchelfHook` resolves this one on its own, but does not add it to
-    # the runpath of the binaries it rewrites.
-    runtimeDependencies = [glibc];
-
-    installPhase = ''
-      runHook preInstall
-      rsync -a "$src/" "$out" --exclude kani-compiler
-      runHook postInstall
-    '';
+  kaniVendor = rustPlatform.fetchCargoVendor {
+    name = "kani-${version}";
+    src = kani-repo;
+    hash = "sha256-BN4OnNPOQ2nOFtKcZrA+aDFD7jkVIxEP78boOSg9gCU=";
   };
+
+  # `-Z build-std` recompiles the standard library, whose dependencies live in
+  # `rust-src`'s lockfile rather than Kani's.
+  stdVendor = rustPlatform.fetchCargoVendor {
+    name = "rust-src-${toolchainChannel}";
+    src = "${toolchain}/lib/rustlib/src/rust/library";
+    hash = "sha256-5oJ/mtsJW0R3F7jgxafP23+WMLkyMKu10De5WIzb7Ro=";
+  };
+
+  # Cargo can only replace `crates-io` with one directory source, so the two
+  # vendor trees have to be flattened into a single one. Kani's is the base:
+  # its `Cargo.lock` is the one the setup hook diffs against the source, and it
+  # is the one carrying git sources.
+  vendor = runCommand "kani-${version}-vendor-merged" {} ''
+    cp -a ${kaniVendor} $out
+    chmod -R u+w $out
+    for crate in ${stdVendor}/source-registry-0/*; do
+      dest="$out/source-registry-0/$(basename "$crate")"
+      # Same crate and version from crates.io either way, so first one wins.
+      [ -e "$dest" ] || cp -a "$crate" "$dest"
+    done
+  '';
 in
   rustPlatform.buildRustPackage {
     pname = "kani";
     inherit version;
 
     src = kani-repo;
-    cargoHash = "sha256-XFuhaFqvpYhFDpvrH7wwPwjFbC7/TAqIl0F9+Eu8zUA=";
+    cargoDeps = vendor;
 
-    nativeBuildInputs = [
-      makeWrapper
-      rsync
-    ];
+    nativeBuildInputs = [makeWrapper];
 
     # `kani-compiler`'s build script resolves the toolchain it links against as
     # `$RUSTUP_HOME/toolchains/$RUSTUP_TOOLCHAIN`. Pointing the latter at `..`
@@ -117,22 +107,56 @@ in
     env = {
       RUSTUP_HOME = "${toolchain}";
       RUSTUP_TOOLCHAIN = "..";
+      CARGO_NET_OFFLINE = "true";
     };
 
-    # The test suite drives a complete Kani installation, which does not exist
-    # yet at this point in the build.
+    # `cargo build-dev` is upstream's own build driver: it builds the binaries
+    # into `target/kani/bin`, then uses the freshly built `kani-compiler` to
+    # compile Kani's libraries and the standard library into the sysroot.
+    buildPhase = ''
+      runHook preBuild
+      cargo build-dev -- --release
+      cargo build --release -p kani-cov
+      runHook postBuild
+    '';
+
+    # The regression suite drives a complete Kani installation and a set of
+    # solvers we do not have here.
     doCheck = false;
 
-    # Lay `$out/lib` out the way `cargo kani setup` would lay out `~/.kani`, so
-    # the proxies find a complete installation and skip their download step.
-    # Only `kani-compiler` is taken from our build: the rest of the bundle was
-    # produced by the same upstream toolchain and is what the pre-compiled Kani
-    # libraries were built against.
-    postInstall = ''
-      mkdir -p "$out/lib"
-      rsync -a "${kaniHome}/" "$out/lib/kani-${version}" --perms --chmod=D+rw,F+rw
-      cp "$out/bin/kani-compiler" "$out/lib/kani-${version}/bin/"
-      ln -s "${toolchain}" "$out/lib/kani-${version}/toolchain"
+    # Lay the sysroot out where the proxies expect to find it, matching the
+    # release bundle's structure.
+    installPhase = ''
+      runHook preInstall
+
+      home="$out/lib/kani-${kaniVersion}"
+      mkdir -p "$home" "$out/bin"
+
+      cp -r target/kani/bin "$home/bin"
+      cp -r target/kani/lib "$home/lib"
+      cp -r target/kani/playback "$home/playback"
+      cp -r target/kani/no_core "$home/no_core"
+      install -Dm755 target/release/kani-cov "$home/bin/kani-cov"
+
+      # `kani-driver` reads `library/kani/kani_lib.c` out of the installation.
+      mkdir -p "$home/library"
+      cp -r library/kani library/kani_macros library/std "$home/library/"
+
+      # The proxies prepend this directory to `PATH` before handing off to
+      # `kani-driver`, which is how the CPROVER tools get found.
+      for tool in ${cbmc}/bin/* ${kissat}/bin/*; do
+        ln -s "$tool" "$home/bin/$(basename "$tool")"
+      done
+
+      # `kani-driver` runs `cargo` out of this symlink rather than going through
+      # rustup, and reads the channel back from `rust-toolchain-version`.
+      ln -s "${toolchain}" "$home/toolchain"
+      printf '%s' "${toolchainChannel}-${config}" > "$home/rust-toolchain-version"
+
+      install -Dm755 target/kani/bin/kani "$out/bin/kani"
+      install -Dm755 target/kani/bin/cargo-kani "$out/bin/cargo-kani"
+
+      runHook postInstall
     '';
 
     postFixup = ''
@@ -141,15 +165,13 @@ in
     '';
 
     meta = {
-      description = "Bit-precise model checker for Rust";
+      description = "Bit-precise model checker for Rust, built from the development branch";
       homepage = "https://github.com/model-checking/kani";
       license = with lib.licenses; [
         mit
         asl20
       ];
       mainProgram = "kani";
-      # The release bundle we graft in is only published for a handful of
-      # targets, and we only ever consume the linux one.
       platforms = ["x86_64-linux"];
     };
   }
