@@ -18,6 +18,7 @@
 
     # TODO: it would be nice to move this to a home-manager configuration instead.
     rv.runtimeDeps = with pkgs; [cargo-bolero];
+    rv.rustVersion = "nightly";
 
     home-manager.sharedModules = [inputs.sops-nix.homeManagerModules.sops];
     home-manager.extraSpecialArgs = {inherit (inputs) zen-browser noctalia rust-overlay kani-repo;};
@@ -56,6 +57,10 @@
 
     # Configure network connections interactively with nmcli or nmtui.
     networking.networkmanager.enable = true;
+
+    # Needed by ALF
+    systemd.coredump.enable = false;
+    powerManagement.cpuFreqGovernor = "performance";
 
     # Used by noctalia
     hardware.bluetooth.enable = true;
