@@ -3,6 +3,7 @@
     enable = true;
     shellAliases = {
       e = "exit";
+      rv = "nix develop --command rv || rv";
     };
     interactiveShellInit = ''
       # Disable the default greeting
