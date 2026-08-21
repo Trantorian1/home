@@ -77,26 +77,6 @@
         "type": "github"
       }
     },
-    "kani-repo": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1786671538,
-        "narHash": "sha256-ZRKny3ZvZpIZ04WwbWJd5vVgi2Mr4rq5WKgvGpYH6SI=",
-        "ref": "main",
-        "rev": "2bf550f91c76e6ef439f742cb7963f26d2925678",
-        "revCount": 2510,
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/model-checking/kani"
-      },
-      "original": {
-        "ref": "main",
-        "rev": "2bf550f91c76e6ef439f742cb7963f26d2925678",
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/model-checking/kani"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1783776592,
@@ -183,34 +163,12 @@
         "disko": "disko",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
-        "kani-repo": "kani-repo",
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",
         "preservation": "preservation",
-        "rust-overlay": "rust-overlay",
         "rv": "rv",
         "sops-nix": "sops-nix",
         "zen-browser": "zen-browser"
-      }
-    },
-    "rust-overlay": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1786638241,
-        "narHash": "sha256-KJhq0HYg2gIZjpsj47z1kWrjoUUAqSqdD2mMWAsOg4k=",
-        "owner": "oxalica",
-        "repo": "rust-overlay",
-        "rev": "892c035d7c2ff75acd5da10424a47ab454e1f3dc",
-        "type": "github"
-      },
-      "original": {
-        "owner": "oxalica",
-        "repo": "rust-overlay",
-        "type": "github"
       }
     },
     "rv": {

@@ -24,7 +24,6 @@
       ./bat.nix
       ./ssh.nix
       ./obsidian.nix
-      ./kani
     ];
 
     home.packages = with pkgs; [
