@@ -29,6 +29,8 @@
     home.packages = with pkgs; [
       # Core
       gnumake
+      man-pages
+      man-pages-posix
 
       # Coding
       config.rv.nvim

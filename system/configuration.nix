@@ -43,6 +43,9 @@
     ];
     nix.package = pkgs.lixPackageSets.stable.lix;
 
+    # Linux manual options
+    documentation.dev.enable = true;
+
     # Use the grub boot loader.
     boot.loader.grub.enable = true;
     boot.loader.grub.efiSupport = true;
