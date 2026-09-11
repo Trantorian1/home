@@ -37,6 +37,9 @@
       config.rv.editor
       codecrafters-cli
 
+      # Localai
+      unsloth-desktop
+
       # Media
       nautilus
       loupe
