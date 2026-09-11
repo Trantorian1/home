@@ -149,10 +149,26 @@ in {
       # Search
       search = {
         force = true;
-        default = "ddg";
-        privateDefault = "ddg";
+        default = "ddg-noai";
+        privateDefault = "ddg-noai";
 
         engines = {
+          "ddg-noai" = {
+            urls = [
+              {
+                template = "https://noai.duckduckgo.com/";
+                params = [
+                  {
+                    name = "q";
+                    value = "{searchTerms}";
+                  }
+                ];
+              }
+            ];
+            icon = "https://duckduckgo.com/favicon.ico";
+            definedAliases = ["@ddg"];
+          };
+
           "Nix Packages" = {
             urls = [
               {
