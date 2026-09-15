@@ -24,6 +24,8 @@
       ./bat.nix
       ./ssh.nix
       ./obsidian.nix
+      ./mpd.nix
+      ./beets.nix
     ];
 
     home.packages = with pkgs; [
@@ -73,6 +75,7 @@
       nautilus
       loupe
       vlc
+      euphonica
 
       # Writing
       typora

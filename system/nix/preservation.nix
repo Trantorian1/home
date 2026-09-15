@@ -47,6 +47,11 @@
           ".steam"
           ".local/share/Steam"
 
+          # Music
+          ".cache/mpd"
+          ".config/mpd"
+          ".cache/beets"
+
           "Documents"
           "Music"
           "Pictures"
