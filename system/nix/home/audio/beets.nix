@@ -9,7 +9,7 @@ in {
       library = "${home}/.cache/beets/database";
       import.copy = false;
 
-      plugins = ["fetchart" "embedart" "lyrics" "rewrite" "scrub"];
+      plugins = ["fetchart" "embedart" "lyrics" "rewrite" "scrub" "musicbrainz"];
       match = {
         preferred.media = ["cd" "digital media over internet"];
         prefer_exact = true;
