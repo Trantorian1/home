@@ -1,4 +1,4 @@
-{config, ...}: {
+{...}: {
   # By default, home-manager does not use the global nixpkgs, even when
   # `inputs.nixpkgs.follows` is set. This can pose issues when sharing package
   # overlays between system and home installations, so we disable that behavior.
@@ -15,30 +15,16 @@
     imports = [
       ./niri
       ./zen-browser
+      ./terminal
+      ./audio
+
       ./noctalia.nix
-      ./ghostty.nix
-      ./fish.nix
-      ./lsd.nix
-      ./git.nix
       ./obs.nix
-      ./bat.nix
       ./ssh.nix
       ./obsidian.nix
-      ./mpd.nix
-      ./beets.nix
     ];
 
     home.packages = with pkgs; [
-      # Core
-      gnumake
-      man-pages
-      man-pages-posix
-
-      # Coding
-      config.rv.nvim
-      config.rv.editor
-      codecrafters-cli
-
       # Local AI
       (buildFHSEnv (
         unsloth-desktop.args
@@ -75,7 +61,6 @@
       nautilus
       loupe
       vlc
-      euphonica
 
       # Writing
       typora
@@ -89,7 +74,6 @@
       protonmail-desktop
       discord
       bambu-studio
-      wireshark
     ];
 
     # The state version is required and should stay at the version you
