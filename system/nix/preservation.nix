@@ -51,6 +51,10 @@
           ".cache/mpd"
           ".config/mpd"
           ".cache/beets"
+          ".cache/euphonica"
+
+          # Settings
+          ".config/dconf"
 
           "Documents"
           "Music"
