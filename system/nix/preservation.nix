@@ -35,13 +35,22 @@
           ".config/Proton Mail"
           ".config/BambuStudio"
 
+          # Unlosth
+          ".unsloth"
+          ".cache/huggingface"
+          ".cache/unsloth"
+          ".local/share/ai.unsloth.studio"
+          ".local/share/uv"
+          ".cache/uv"
+
+          # Steam
+          ".steam"
+          ".local/share/Steam"
+
           "Documents"
           "Music"
           "Pictures"
           "Video"
-
-          ".steam"
-          ".local/share/Steam"
         ];
       };
     };

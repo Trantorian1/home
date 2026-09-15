@@ -37,8 +37,37 @@
       config.rv.editor
       codecrafters-cli
 
-      # Localai
-      unsloth-desktop
+      # Local AI
+      (buildFHSEnv (
+        unsloth-desktop.args
+        // {
+          # llama.cpp's Vulkan backend needs libvulkan.so.1, which neither
+          # buildFHSEnv's base packages nor this derivation's targetPkgs
+          # provide. The ICDs come from the host -- buildFHSEnv already puts
+          # /run/opengl-driver/share on XDG_DATA_DIRS for exactly this.
+          targetPkgs = pkgs:
+            unsloth-desktop.args.targetPkgs pkgs
+            ++ [
+              pkgs.vulkan-loader
+              pciutils
+            ];
+
+          profile =
+            unsloth-desktop.args.profile
+            + ''
+              # WebKitGTK does HTTPS through libsoup3, which takes its TLS backend
+              # from GIO, which only finds glib-networking via GIO_EXTRA_MODULES.
+              # Neither the derivation's profile nor buildFHSEnv's generated
+              # /etc/profile sets it, so every fetch from the webview -- the Model
+              # hub tab -- fails as an opaque network error.
+              export GIO_EXTRA_MODULES="/usr/lib/gio/modules''${GIO_EXTRA_MODULES:+:$GIO_EXTRA_MODULES}"
+
+              # Keep the bootstrapped `uv` inside the preserved `~/.unsloth`
+              # tree instead of `~/.local/bin`.
+              export PATH="$UV_INSTALL_DIR''${PATH:+:$PATH}"
+            '';
+        }
+      ))
 
       # Media
       nautilus
