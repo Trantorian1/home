@@ -15,7 +15,7 @@
     imports = [
       ./niri
       ./zen-browser
-      ./terminal
+      ./dev
       ./audio
 
       ./noctalia.nix
@@ -25,9 +25,6 @@
     ];
 
     home.packages = with pkgs; [
-      # Local AI
-      unsloth-desktop
-
       # Media
       nautilus
       loupe

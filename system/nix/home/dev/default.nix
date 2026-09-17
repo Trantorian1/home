@@ -21,5 +21,11 @@
     osConfig.rv.nvim
     osConfig.rv.editor
     codecrafters-cli
+
+    # Virtualisation
+    docker-compose
+
+    # Local AI
+    unsloth-desktop
   ];
 }
