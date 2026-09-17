@@ -21,16 +21,21 @@
     rv.rustVersion = "nightly";
 
     home-manager.sharedModules = [inputs.sops-nix.homeManagerModules.sops];
-    home-manager.extraSpecialArgs = {inherit (inputs) zen-browser noctalia rust-overlay kani-repo;};
+    home-manager.extraSpecialArgs = {inherit (inputs) zen-browser noctalia;};
 
     nix.settings.experimental-features = [
       "nix-command"
       "flakes"
     ];
 
-    # Override the nix version to use lix instead
-    # https://git.lix.systems/lix-project/lix
     nixpkgs.overlays = [
+      # By default, home-manager's version of nixpkgs shares the same system-level overlays.
+      #
+      # https://nix-community.github.io/home-manager/options/home-manager/nixpkgs.html#opt-nixpkgs.overlays
+      inputs.unsloth.overlays.default
+
+      # Override the nix version to use lix instead
+      # https://git.lix.systems/lix-project/lix
       (final: prev: {
         inherit
           (prev.lixPackageSets.stable)

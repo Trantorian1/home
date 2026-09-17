@@ -168,6 +168,7 @@
         "preservation": "preservation",
         "rv": "rv",
         "sops-nix": "sops-nix",
+        "unsloth": "unsloth",
         "zen-browser": "zen-browser"
       }
     },
@@ -209,6 +210,26 @@
       "original": {
         "owner": "Mic92",
         "repo": "sops-nix",
+        "type": "github"
+      }
+    },
+    "unsloth": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789637737,
+        "narHash": "sha256-9kvJ9Jp1G1rkVLHoLfxDoKELr00fkqJbAAE9VXxZvPM=",
+        "owner": "trantorian1",
+        "repo": "unsloth-flake",
+        "rev": "8e03fe5de099f1f05ef92373032ee353f61344b2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "trantorian1",
+        "repo": "unsloth-flake",
         "type": "github"
       }
     },
