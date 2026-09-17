@@ -53,6 +53,8 @@
               # Keep the bootstrapped `uv` inside the preserved `~/.unsloth`
               # tree instead of `~/.local/bin`.
               export PATH="$UV_INSTALL_DIR''${PATH:+:$PATH}"
+
+              export CC=${pkgs.gcc}/bin/gcc
             '';
         }
       ))
