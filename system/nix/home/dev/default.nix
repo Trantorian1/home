@@ -1,5 +1,6 @@
 {
   osConfig,
+  unsloth,
   pkgs,
   ...
 }: {
@@ -26,6 +27,6 @@
     docker-compose
 
     # Local AI
-    unsloth-desktop
+    unsloth.packages.${pkgs.stdenv.hostPlatform.system}.unsloth-desktop
   ];
 }
