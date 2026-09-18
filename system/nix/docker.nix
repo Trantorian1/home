@@ -6,6 +6,7 @@
       enable = true;
 
       daemon.settings = {
+        default-runtime = "runsc";
         runtimes = {
           runsc = {
             path = "${pkgs.gvisor}/bin/runsc";
