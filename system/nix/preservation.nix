@@ -56,6 +56,9 @@
           # Settings
           ".config/dconf"
 
+          # Docker
+          ".local/share/docker"
+
           "Documents"
           "Music"
           "Pictures"

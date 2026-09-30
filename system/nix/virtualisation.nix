@@ -4,6 +4,7 @@
 
     rootless = {
       enable = true;
+      setSocketVariable = true;
 
       daemon.settings = {
         default-runtime = "runsc";
