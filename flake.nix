@@ -61,23 +61,34 @@
         ./system
       ];
 
-      perSystem = {pkgs, ...}: {
+      perSystem = {
+        self',
+        pkgs,
+        ...
+      }: {
         formatter = pkgs.alejandra;
 
+        packages = {
+          env = pkgs.buildEnv {
+            name = "devenv";
+            paths = with pkgs; [
+              # nix
+              nixos-facter
+              nix-index
+              nurl
+
+              # iso remastering
+              libisoburn
+
+              # crypto
+              age
+              sops
+            ];
+          };
+        };
+
         devShells.default = pkgs.mkShellNoCC {
-          packages = with pkgs; [
-            # nix
-            nixos-facter
-            nix-index
-            nurl
-
-            # iso remastering
-            libisoburn
-
-            # crypto
-            age
-            sops
-          ];
+          packages = [self'.packages.env];
         };
       };
     };
