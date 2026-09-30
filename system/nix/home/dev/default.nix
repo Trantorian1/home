@@ -28,5 +28,6 @@
 
     # Local AI
     unsloth.packages.${pkgs.stdenv.hostPlatform.system}.unsloth-desktop
+    unsloth.packages.${pkgs.stdenv.hostPlatform.system}.unsloth
   ];
 }
