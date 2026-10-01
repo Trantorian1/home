@@ -77,6 +77,29 @@
         "type": "github"
       }
     },
+    "microvm": {
+      "inputs": {
+        "nixpkgs": [
+          "rv",
+          "opencode-sandbox",
+          "nixpkgs"
+        ],
+        "spectrum": "spectrum"
+      },
+      "locked": {
+        "lastModified": 1790526615,
+        "narHash": "sha256-33a6iTG1uFv12/zV8yo5VvdpftMNQms6TIHhMCVN6zE=",
+        "owner": "microvm-nix",
+        "repo": "microvm.nix",
+        "rev": "81f70a2002254f75b572fc34c55e7df16e9bb176",
+        "type": "github"
+      },
+      "original": {
+        "owner": "microvm-nix",
+        "repo": "microvm.nix",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1789006805,
@@ -143,6 +166,28 @@
         "type": "github"
       }
     },
+    "opencode-sandbox": {
+      "inputs": {
+        "microvm": "microvm",
+        "nixpkgs": [
+          "rv",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790787293,
+        "narHash": "sha256-YsYG5PC4mdNGxW8EX6R2bDNm9YX428eOLHjkJC1Fcio=",
+        "owner": "trantorian1",
+        "repo": "opencode-sandbox",
+        "rev": "8d7de9e3bc1058ab36b59fa6c41054ebb872c5b0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "trantorian1",
+        "repo": "opencode-sandbox",
+        "type": "github"
+      }
+    },
     "preservation": {
       "locked": {
         "lastModified": 1757436102,
@@ -177,14 +222,15 @@
         "flake-parts": "flake-parts_2",
         "nixpkgs": [
           "nixpkgs"
-        ]
+        ],
+        "opencode-sandbox": "opencode-sandbox"
       },
       "locked": {
-        "lastModified": 1789118738,
-        "narHash": "sha256-Pqh9SBN5uKdcu6/ldfYcmvYXMWPWdgPsXy6U98IFu64=",
+        "lastModified": 1790862780,
+        "narHash": "sha256-oO3haMpP1bvBm8RyZ9yc5b8xGS7moYjJhEF3MjcMOm8=",
         "owner": "trantorian1",
         "repo": "rv",
-        "rev": "796abde138dda0e92a89f74c109dc344c4580df0",
+        "rev": "1954606e3f7f85362cfa3fb8b5267ccb1ffbfdb0",
         "type": "github"
       },
       "original": {
@@ -211,6 +257,22 @@
         "owner": "Mic92",
         "repo": "sops-nix",
         "type": "github"
+      }
+    },
+    "spectrum": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786032750,
+        "narHash": "sha256-+Ba/kIn5BjvV7PN8bWOo7RoqgTY/Yv2M7qeMf3wS2Ag=",
+        "ref": "refs/heads/main",
+        "rev": "77d2389874bb092b8dbf05ecc5b1030372e80e98",
+        "revCount": 1417,
+        "type": "git",
+        "url": "https://spectrum-os.org/git/spectrum"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://spectrum-os.org/git/spectrum"
       }
     },
     "unsloth": {
