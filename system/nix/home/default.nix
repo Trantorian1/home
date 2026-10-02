@@ -29,6 +29,7 @@
       nautilus
       loupe
       vlc
+      inkscape
 
       # Writing
       typora
