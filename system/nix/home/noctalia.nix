@@ -24,8 +24,16 @@
 
       # A minimal bar showing only battery info on hover, hidden otherwise
       # Battery display is disabled if not on a laptop.
-      bar = let
-        common = {
+      bar = {
+        order = ["default"];
+
+        default = {
+          enabled = osConfig.networking.hostName == "laptop";
+
+          start = [];
+          center = ["battery"];
+          end = [];
+
           auto_hide = true;
 
           color = "on_surface";
@@ -39,32 +47,6 @@
           capsule_fill = "surface";
           capsule_padding = 10.0;
         };
-      in {
-        order = [
-          "default"
-          "media"
-        ];
-
-        default =
-          {
-            enabled = osConfig.networking.hostName == "laptop";
-
-            start = [];
-            center = ["battery"];
-            end = [];
-          }
-          // common;
-
-        media =
-          {
-            enabled = true;
-            position = "bottom";
-
-            start = [];
-            center = ["media"];
-            end = [];
-          }
-          // common;
       };
 
       theme = {
