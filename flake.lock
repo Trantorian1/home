@@ -283,11 +283,11 @@
         "unsloth-src": "unsloth-src"
       },
       "locked": {
-        "lastModified": 1790763763,
-        "narHash": "sha256-7luwO8DjcqM516IyTZnjOu3a00/GAtsnGauRfxivxwc=",
+        "lastModified": 1791383054,
+        "narHash": "sha256-Z5sjlqNV2Xl0yOcWOOWlAbPj21hRXr2A8VgSOIdwqrM=",
         "owner": "trantorian1",
         "repo": "unsloth-flake",
-        "rev": "c082cd69c11f6fb635f66e519f79b4439a0b9206",
+        "rev": "48b77e0072787fa53ba011b4befb68c6b77067a3",
         "type": "github"
       },
       "original": {
@@ -299,11 +299,11 @@
     "unsloth-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1790759688,
-        "narHash": "sha256-VEH5KEG6jtalD/oCPThNVkyUNS/LAYFXvVQg7f7GA8A=",
+        "lastModified": 1791381209,
+        "narHash": "sha256-4FEGDGeCb+kpW/EhNz/tBQFAewxQFkeiEqE9RgviEMo=",
         "owner": "unslothai",
         "repo": "unsloth",
-        "rev": "74e53b0702348798329385ecafd55a89268c4de6",
+        "rev": "2402838d790fd5f8b65e8c0c4b7eff0899699d21",
         "type": "github"
       },
       "original": {
