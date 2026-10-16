@@ -27,6 +27,7 @@
     home.packages = with pkgs; [
       # Media
       nautilus
+      grayjay
       loupe
       vlc
       inkscape

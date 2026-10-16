@@ -100,6 +100,44 @@
         "type": "github"
       }
     },
+    "microvm_2": {
+      "inputs": {
+        "nixpkgs": [
+          "unsloth",
+          "opencode-sandbox",
+          "nixpkgs"
+        ],
+        "spectrum": "spectrum_2"
+      },
+      "locked": {
+        "lastModified": 1790526615,
+        "narHash": "sha256-33a6iTG1uFv12/zV8yo5VvdpftMNQms6TIHhMCVN6zE=",
+        "owner": "microvm-nix",
+        "repo": "microvm.nix",
+        "rev": "81f70a2002254f75b572fc34c55e7df16e9bb176",
+        "type": "github"
+      },
+      "original": {
+        "owner": "microvm-nix",
+        "repo": "microvm.nix",
+        "type": "github"
+      }
+    },
+    "nixlib": {
+      "locked": {
+        "lastModified": 1791544737,
+        "narHash": "sha256-9B7QDso7MU26oFr68H5h9JvI63crgCrluVcpsYdltsI=",
+        "owner": "nix-util",
+        "repo": "nixlib",
+        "rev": "8e40e4429dfe7c4b29159a8e669fc46e99829229",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-util",
+        "repo": "nixlib",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1789006805,
@@ -146,6 +184,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1790822859,
+        "narHash": "sha256-69xHQhAeMAD2wDXO7T2pcOZIF9Sga2W+JkmY2a11Ops=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "c59305bab2065cfecc4944690d9eedbb56f3a9fa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "noctalia": {
       "inputs": {
         "nixpkgs": [
@@ -184,6 +238,25 @@
       },
       "original": {
         "owner": "trantorian1",
+        "repo": "opencode-sandbox",
+        "type": "github"
+      }
+    },
+    "opencode-sandbox_2": {
+      "inputs": {
+        "microvm": "microvm_2",
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1791381782,
+        "narHash": "sha256-Ba+M8A0kgh/UB6tl/0ccwupfl7FPYLwUnRduzbj3PSQ=",
+        "owner": "OpencodeSandbox",
+        "repo": "opencode-sandbox",
+        "rev": "4bba88be51bdd450b943476c76a3bd4d12a4d95c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "OpencodeSandbox",
         "repo": "opencode-sandbox",
         "type": "github"
       }
@@ -275,19 +348,37 @@
         "url": "https://spectrum-os.org/git/spectrum"
       }
     },
+    "spectrum_2": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786032750,
+        "narHash": "sha256-+Ba/kIn5BjvV7PN8bWOo7RoqgTY/Yv2M7qeMf3wS2Ag=",
+        "ref": "refs/heads/main",
+        "rev": "77d2389874bb092b8dbf05ecc5b1030372e80e98",
+        "revCount": 1417,
+        "type": "git",
+        "url": "https://spectrum-os.org/git/spectrum"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://spectrum-os.org/git/spectrum"
+      }
+    },
     "unsloth": {
       "inputs": {
+        "nixlib": "nixlib",
         "nixpkgs": [
           "nixpkgs"
         ],
+        "opencode-sandbox": "opencode-sandbox_2",
         "unsloth-src": "unsloth-src"
       },
       "locked": {
-        "lastModified": 1791383054,
-        "narHash": "sha256-Z5sjlqNV2Xl0yOcWOOWlAbPj21hRXr2A8VgSOIdwqrM=",
+        "lastModified": 1791564406,
+        "narHash": "sha256-M1GsTvEwl4lIoqmUbQ+HG8F8Rtwk9RRSa84sanwQdSA=",
         "owner": "trantorian1",
         "repo": "unsloth-flake",
-        "rev": "48b77e0072787fa53ba011b4befb68c6b77067a3",
+        "rev": "f55a41097f2b7ea849ecfd2af02e6ec0645771e2",
         "type": "github"
       },
       "original": {
@@ -299,11 +390,11 @@
     "unsloth-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1791381209,
-        "narHash": "sha256-4FEGDGeCb+kpW/EhNz/tBQFAewxQFkeiEqE9RgviEMo=",
+        "lastModified": 1791516690,
+        "narHash": "sha256-v0x6n1sG+l6re203w0NKhwkyiiCulmagwQNKLKN86PY=",
         "owner": "unslothai",
         "repo": "unsloth",
-        "rev": "2402838d790fd5f8b65e8c0c4b7eff0899699d21",
+        "rev": "cc9128134156cc51f94eeb76d3d19f80bddbc8a7",
         "type": "github"
       },
       "original": {
