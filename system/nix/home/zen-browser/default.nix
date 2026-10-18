@@ -106,8 +106,6 @@ in {
 
         # Homepage
         "browser.startup.homepage" = lib.strings.join "|" [
-          "https://discord.com/login"
-          "https://github.com/login"
           "https://habitica.com/login"
         ];
       };
