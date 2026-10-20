@@ -1,9 +1,15 @@
-{...}: {
+{
+  nixosConfig,
+  lib,
+  ...
+}: let
+  rv = lib.getExe nixosConfig.rv.editor;
+in {
   programs.fish = {
     enable = true;
     shellAliases = {
       e = "exit";
-      rv = "nix develop --command rv || rv";
+      rv = "nix develop --command ${rv} || ${rv}";
     };
     interactiveShellInit = ''
       # Disable the default greeting
