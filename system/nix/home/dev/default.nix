@@ -17,6 +17,7 @@
     gnumake
     man-pages
     man-pages-posix
+    htop
 
     # Coding
     osConfig.rv.nvim

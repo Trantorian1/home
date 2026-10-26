@@ -3,7 +3,10 @@
   pkgs,
   ...
 }: {
-  imports = [./home];
+  imports = [
+    ./home
+    ./home/dev/opencode
+  ];
 
   # Needed since the user's default shell is set to `fish`.
   programs.fish.enable = true;

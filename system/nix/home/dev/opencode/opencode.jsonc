@@ -1,0 +1,33 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "unsloth/ornith-1.5",
+  "providers": {
+    "unsloth": {
+      "name": "Unsloth",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "http://10.0.2.10:8888/v1",
+        "apiKey": "{env:UNSLOTH_API_KEY}"
+      },
+      "models": {
+        "ornith-1.5": {
+          "name": "Ornith-1.5 (local)",
+          "modelID": "Ornith-1.5-35B-A3B-GGUF:Q8_0",
+          "capabilities": {
+            "tools": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 262144,
+          }
+        }
+      }
+    }
+  }
+}
