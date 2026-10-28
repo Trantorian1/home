@@ -1,5 +1,7 @@
 {pkgs, ...}: {
-  xdg.configFile."niri/config.kdl".source =
+  # Hjem's equivalent of HM's `xdg.configFile` is `xdg.config.files`
+  # (relative to $HOME/.config by default).
+  xdg.config.files."niri/config.kdl".source =
     pkgs.runCommand "niri-config-checked"
     {
       nativeBuildInputs = [pkgs.niri];
