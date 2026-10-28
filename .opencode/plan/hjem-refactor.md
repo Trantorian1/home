@@ -90,8 +90,8 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 | `audio/beets.nix` | -> beets package + `xdg.config.files."beets/config.yaml"` via `pkgs.formats.yaml` `.generator` (HM's exact format, byte-identical); home paths use Hjem's `config.directory` (equivalent of HM's `config.home.homeDirectory`). HM's optional mpd integration (mpdstats/mpdupdate) is not used by this project — nothing to carry over |
 | `audio/mpd.nix` | -> mpd package + `systemd.services.mpd` user unit (Hjem's own service type, rendered via nixpkgs' systemdUtils). **CORRECTION:** HM never placed an mpd.conf in the home — it passed the generated config from the store as a CLI arg (`mpd --no-daemon /nix/store/...-mpd.conf`); reproduced exactly (earlier draft said `~/.config/mpd.conf` linked file). Config text is byte-identical to HM's generatedConfig (verified against a verbatim copy of HM's expression, incl. the trailing blank line from its final fragment). MPD_HOST/MPD_PORT session vars (HM default on) -> `fish/conf.d/mpd.fish`. Unit PATH: Hjem/nixpkgs default path (coreutils/findutils/gnugrep/gnused/systemd via `enableDefaultPath`) instead of HM's profile-bin-only PATH — functionally irrelevant here (absolute paths in ExecStart/ExecStartPre, pipewire output is internal) |
 | `niri/` | -> validated `~/.config/niri/config.kdl` as `.source` (keep the `niri validate` build-time check) |
-| `obs.nix` | -> obs-studio + plugin packages only (config left to user) |
-| `obsidian.nix` | -> obsidian package only |
+| `obs.nix` | -> **Refinement of the earlier sketch:** instead of plain "obs-studio + plugin packages", the module carries HM's exact `finalPackage` — `pkgs.wrapOBS.override {obs-studio = pkgs.obs-studio;} {plugins = [wlrobs obs-backgroundremoval obs-pipewire-audio-capture];}` (a symlinkJoin whose `obs` binary is wrapped to point `OBS_PLUGINS_PATH` at the joined plugin dir). Byte-identical package (`wrapped-obs-studio-32.2.2`) verified against the pinned HM module. |
+| `obsidian.nix` | -> obsidian package only (per plan). The old activation hook that merged a boilerplate `~/.config/obsidian/obsidian.json` (empty vaults, `updateDisabled = true`, `cli = false`) is dropped — no vaults/settings are configured, so the file carried no user data; Hjem has no merge semantics anyway (a static file would clobber user edits on re-activation) |
 | `noctalia.nix` | import `inputs.noctalia.hjemModules.default` (module now destructures `{ inputs, ... }`); keep `programs.noctalia` options unchanged (enable, systemd.enable, settings). Verified at pinned rev 6423cc2: the Hjem variant declares the same options and emits `packages`, `systemd.services.noctalia`, `xdg.config.files` (validated `config.toml`). **NOTE:** the HM variant referenced `config.wayland.systemd.target`, which does not exist in the locked nixpkgs 26.11 (dangling reference — the pre-refactor tree could not evaluate); the Hjem module uses its own `systemd.target` option, default `graphical-session.target`, matching nixpkgs' native `programs.noctalia` module |
 | `ssh.nix` | -> `files.".ssh"` (`type = "directory"`, 0700) + `files.".ssh/config".text`. Config text is byte-identical to the pinned HM rendering (verified by evaluating old module rev 6750249: github.com block first, `*` last; directives sorted within blocks). Note: HM's `settings` path passes raw names through verbatim, so the old github.com block's camelCase names (`user`, `identityFile`, `identitiesOnly`) were rendered literally — OpenSSH directive names are case-insensitive, kept as-is for byte fidelity. The `sops.*` block is dropped (owned by `system/nix/sops.nix`). No package carried (HM `programs.ssh.package` defaulted to null). |
 | `zen-browser/` | -> **Full-module harvest (done).** Vendored HM's `mkFirefoxModule.nix` + `profiles/{bookmark-types,bookmarks,handlers,search}.nix` verbatim into `system/nix/home/zen-browser/` (byte-identical to pinned rev 6750249 and to master at the time of vendoring). The new Hjem module evaluates the rebranded factory in a minimal `home.*` option harness (`lib.evalModules` with stubbed `home.{stateVersion,homeDirectory,packages,file}` + nixpkgs' `assertions.nix` + a `targets.darwin.defaults` stub — the options HM's own module set provides) and maps the harvested `home.file` entries to Hjem `files` (`text`→text, `source`→source, `force`→clobber; no counterpart needed for `recursive` — a plain symlink of a directory source links the directory itself, exactly what HM's recursive symlinking does). Emits `packages = cfg.home.packages`. **FINDING (fidelity):** the old system's `policies` were NEVER baked into the wrapper — the zen flake's `callPackage` redefines `.override` (`__functionArgs = [wrapFirefox, zen-browser-unwrapped]`, no `cfg`), so mkFirefoxModule's wrapPackage takes its "cannot be reconfigured" warning branch and returns the plain wrapped package; the old system emitted that warning on every eval. Reproduced exactly (same warning, `finalPackage = zen-browser-1.23.4b`). See hard problem #1. |
@@ -289,15 +289,24 @@ Done (commits `260a0b4`, `f889016`):
       (`directory`, `clobberFiles`, `imports`, `packages`)
 
 Remaining:
-- [ ] Convert every module under `system/nix/home/` from HM style to Hjem linked files /
-      generators / units (the tree does not build until this is done)
+- [x] Convert every module under `system/nix/home/` from HM style to Hjem linked files /
+      generators / units — **DONE** (full-tree harness eval passes; see below)
 - [x] zen-browser Firefox profile harvest (hard problem #1) — DONE, see hard problem #1
 - [x] `.ssh` directory clobber behavior verified against the pinned Hjem CLI directly
       (contents preserved, perms enforced — see hard problem #2; qemu test no longer needed)
 - [x] Environment-variable approach confirmed: fish `set -gx` in conf.d files (see above)
 
-Converted so far (per-item harness-validated): `dev/git.nix`, `dev/ghostty.nix`,
+All modules converted (per-item harness-validated): `dev/git.nix`, `dev/ghostty.nix`,
 `dev/lsd.nix`, `dev/fish.nix`, `dev/bat.nix`, `dev/opencode.nix`,
-`audio/beets.nix`, `audio/mpd.nix`, `noctalia.nix`, `ssh.nix`, `zen-browser/`.
-Remaining: `home.packages` -> `packages` (the last one also fixes
-`dev/default.nix`'s bare `unsloth` arg — see the specialArgs correction above).
+`audio/beets.nix`, `audio/mpd.nix`, `noctalia.nix`, `ssh.nix`, `zen-browser/`, and the final
+sweep: `dev/default.nix` (`home.packages` -> `packages`, bare `unsloth` arg -> `inputs.unsloth`),
+`audio/default.nix` (`home.packages` -> `packages`), `obs.nix` (wrapOBS finalPackage),
+`obsidian.nix` (package only).
+
+**Full-tree validation (final check):** the real `system/nix/home/default.nix` with ALL imports
+evaluates as one Hjem user config against pinned heim + locked nixpkgs — 33 packages (forwarded
+to `users.users.dev.packages`), 20 `xdg.config.files` entries, 7 top-level `files`, 2 systemd
+user units; the only warning is the known zen-browser fidelity one. This check caught a real
+bug that per-item validation missed: `niri/default.nix` used HM's `xdg.configFile` option name,
+which does not exist in Hjem — fixed to `xdg.config.files` (same target, `~/.config/niri/config.kdl`;
+the `niri validate` build-time check is kept).
