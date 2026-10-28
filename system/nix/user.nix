@@ -5,7 +5,6 @@
 }: {
   imports = [
     ./home
-    ./home/dev/opencode
   ];
 
   # Needed since the user's default shell is set to `fish`.

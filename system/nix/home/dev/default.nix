@@ -10,6 +10,7 @@
     ./ghostty.nix
     ./git.nix
     ./lsd.nix
+    ./opencode.nix
   ];
 
   home.packages = with pkgs; [
