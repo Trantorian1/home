@@ -4,7 +4,7 @@
     ./mpd.nix
   ];
 
-  home.packages = with pkgs; [
+  packages = with pkgs; [
     euphonica
   ];
 }

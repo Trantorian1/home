@@ -1,6 +1,6 @@
 {
+  inputs,
   osConfig,
-  unsloth,
   pkgs,
   ...
 }: {
@@ -13,7 +13,7 @@
     ./opencode.nix
   ];
 
-  home.packages = with pkgs; [
+  packages = with pkgs; [
     # Core
     gnumake
     man-pages
@@ -29,7 +29,7 @@
     docker-compose
 
     # Local AI
-    unsloth.packages.${pkgs.stdenv.hostPlatform.system}.unsloth-desktop
-    unsloth.packages.${pkgs.stdenv.hostPlatform.system}.unsloth
+    inputs.unsloth.packages.${pkgs.stdenv.hostPlatform.system}.unsloth-desktop
+    inputs.unsloth.packages.${pkgs.stdenv.hostPlatform.system}.unsloth
   ];
 }
