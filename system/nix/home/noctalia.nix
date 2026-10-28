@@ -1,10 +1,12 @@
 {
-  noctalia,
+  inputs,
   osConfig,
   pkgs,
   ...
 }: {
-  imports = [noctalia.homeModules.default];
+  # The Hjem variant of noctalia's module (same programs.noctalia options as
+  # the home-manager one); see the plan's "Upstream Hjem modules" section.
+  imports = [inputs.noctalia.hjemModules.default];
 
   programs.noctalia = {
     enable = true;
