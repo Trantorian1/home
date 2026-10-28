@@ -52,9 +52,18 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
   `xdg.config.files."opencode/opencode.json"` ~= `files.".config/opencode/opencode.json"`.
   Both merge into one manifest per user; noctalia's Hjem module emits `xdg.config.files`, so
   mixing both styles in one user config is fine.
-- User systemd units (`systemd.services` & friends, full NixOS unit options) are linked into
-  `~/.config/systemd/user/` and registered in system `systemd.units`; `hjem-reload@<user>`
-  reloads changed user units after file activation when the user manager is running.
+- User systemd units (`systemd.services` & friends) are Hjem's own option types (NOT raw
+  NixOS unit style): `description`, `after`/`before`/`requires`/..., `wantedBy`, `environment`,
+  `path`, `enableDefaultPath` (default `true` — appends a minimal PATH of coreutils/findutils/
+  gnugrep/gnused/systemd bins), and raw-section `serviceConfig`/`unitConfig`. Hjem renders each
+  unit with nixpkgs' `utils.systemdUtils.lib.makeUnit` and links it to
+  `~/.config/systemd/user/` plus `.wants/` symlinks for `wantedBy`; `hjem-reload@<user>` reloads
+  changed user units after file activation when the user manager is running.
+- **Verified:** Hjem's modules destructure a `utils` arg that Hjem itself never defines — it
+  comes from nixpkgs: `nixos/modules/misc/extra-arguments.nix` injects
+  `_module.args.utils = import nixos/lib/utils.nix {...}` into every NixOS module. So Hjem user
+  systemd options only work inside a real NixOS system evaluation (they do; harness must force
+  them, e.g. by reading `hjem.users.<u>.systemd.units`).
 - Each user config is a standard NixOS module: `imports` and `assertions` work, which is what
   makes per-user `imports = [inputs.noctalia.hjemModules.default]` valid.
 
@@ -72,7 +81,7 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 | `dev/bat.nix` | -> bat package; `xdg.config.files."bat/config"` via HM's `toConfigFile` renderer (`--key=value` lines, byte-identical — verified by reconstructing the exact writeTextFile drv) fed by ghostty's `map-syntax`; `"bat/syntaxes/ghostty.sublime-syntax"` linked from `pkgs.ghostty` (HM's default-on `installBatSyntax`, file = `share/bat/syntaxes/ghostty.sublime-syntax` — verified present); `MANPAGER` in `fish/conf.d/bat.fish` as `set -gx MANPAGER "bat -l man -p"` (user-confirmed option 1; Hjem's `sessionVariables` cannot reach a fish session). **DECISION:** HM's `home.activation.batCache` hook (`bat cache --build`) is skipped for now — the cache rebuilds lazily on first use after each impermanent boot; revisit only if post-reboot bat startup feels slow |
 | `dev/opencode/` | -> `xdg.config.files."opencode/opencode.json"` with `type = "copy"` + JSON `.generator` (see notes below); flattened to `dev/opencode.nix` and moved into `dev/default.nix` imports (was imported from `user.nix` at NixOS level because the old module used `system.userActivationScripts`) |
 | `audio/beets.nix` | -> beets package + `xdg.config.files."beets/config.yaml"` via `pkgs.formats.yaml` `.generator` (HM's exact format, byte-identical); home paths use Hjem's `config.directory` (equivalent of HM's `config.home.homeDirectory`). HM's optional mpd integration (mpdstats/mpdupdate) is not used by this project — nothing to carry over |
-| `audio/mpd.nix` | -> `~/.config/mpd.conf` linked file **+** `systemd.services.mpd` user unit |
+| `audio/mpd.nix` | -> mpd package + `systemd.services.mpd` user unit (Hjem's own service type, rendered via nixpkgs' systemdUtils). **CORRECTION:** HM never placed an mpd.conf in the home — it passed the generated config from the store as a CLI arg (`mpd --no-daemon /nix/store/...-mpd.conf`); reproduced exactly (earlier draft said `~/.config/mpd.conf` linked file). Config text is byte-identical to HM's generatedConfig (verified against a verbatim copy of HM's expression, incl. the trailing blank line from its final fragment). MPD_HOST/MPD_PORT session vars (HM default on) -> `fish/conf.d/mpd.fish`. Unit PATH: Hjem/nixpkgs default path (coreutils/findutils/gnugrep/gnused/systemd via `enableDefaultPath`) instead of HM's profile-bin-only PATH — functionally irrelevant here (absolute paths in ExecStart/ExecStartPre, pipewire output is internal) |
 | `niri/` | -> validated `~/.config/niri/config.kdl` as `.source` (keep the `niri validate` build-time check) |
 | `obs.nix` | -> obs-studio + plugin packages only (config left to user) |
 | `obsidian.nix` | -> obsidian package only |
@@ -243,5 +252,5 @@ Remaining:
 
 Converted so far (per-item harness-validated): `dev/git.nix`, `dev/ghostty.nix`,
 `dev/lsd.nix`, `dev/fish.nix`, `dev/bat.nix`, `dev/opencode.nix`,
-`audio/beets.nix`. Remaining: `audio/mpd.nix` (+ user unit), `noctalia.nix`,
-`ssh.nix`, `zen-browser/`, and `home.packages` -> `packages`.
+`audio/beets.nix`, `audio/mpd.nix`. Remaining: `noctalia.nix`, `ssh.nix`,
+`zen-browser/`, and `home.packages` -> `packages`.
