@@ -71,7 +71,7 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 | `dev/lsd.nix` | -> lsd package; `xdg.config.files."lsd/colors.yaml"` (catppuccin-latte) **and** `"lsd/config.yaml"` (`color.theme: custom`, which HM auto-adds whenever colors is set) via `pkgs.formats.yaml` `.generator`s; fish aliases (`ls/ll/la/lt/lla/llt`) as `fish/conf.d/lsd.fish` rendered with HM's exact `alias <k> <escapeShellArg v>` form |
 | `dev/bat.nix` | -> bat package; `xdg.config.files."bat/config"` via HM's `toConfigFile` renderer (`--key=value` lines, byte-identical — verified by reconstructing the exact writeTextFile drv) fed by ghostty's `map-syntax`; `"bat/syntaxes/ghostty.sublime-syntax"` linked from `pkgs.ghostty` (HM's default-on `installBatSyntax`, file = `share/bat/syntaxes/ghostty.sublime-syntax` — verified present); `MANPAGER` in `fish/conf.d/bat.fish` as `set -gx MANPAGER "bat -l man -p"` (user-confirmed option 1; Hjem's `sessionVariables` cannot reach a fish session). **DECISION:** HM's `home.activation.batCache` hook (`bat cache --build`) is skipped for now — the cache rebuilds lazily on first use after each impermanent boot; revisit only if post-reboot bat startup feels slow |
 | `dev/opencode/` | -> `xdg.config.files."opencode/opencode.json"` with `type = "copy"` + JSON `.generator` (see notes below); flattened to `dev/opencode.nix` and moved into `dev/default.nix` imports (was imported from `user.nix` at NixOS level because the old module used `system.userActivationScripts`) |
-| `audio/beets.nix` | -> `~/.config/beets/config.yaml` via `.generator` |
+| `audio/beets.nix` | -> beets package + `xdg.config.files."beets/config.yaml"` via `pkgs.formats.yaml` `.generator` (HM's exact format, byte-identical); home paths use Hjem's `config.directory` (equivalent of HM's `config.home.homeDirectory`). HM's optional mpd integration (mpdstats/mpdupdate) is not used by this project — nothing to carry over |
 | `audio/mpd.nix` | -> `~/.config/mpd.conf` linked file **+** `systemd.services.mpd` user unit |
 | `niri/` | -> validated `~/.config/niri/config.kdl` as `.source` (keep the `niri validate` build-time check) |
 | `obs.nix` | -> obs-studio + plugin packages only (config left to user) |
@@ -242,6 +242,6 @@ Remaining:
 - [x] Environment-variable approach confirmed: fish `set -gx` in conf.d files (see above)
 
 Converted so far (per-item harness-validated): `dev/git.nix`, `dev/ghostty.nix`,
-`dev/lsd.nix`, `dev/fish.nix`, `dev/bat.nix`, `dev/opencode.nix`. Remaining:
-`audio/beets.nix`, `audio/mpd.nix` (+ user unit), `noctalia.nix`, `ssh.nix`,
-`zen-browser/`, and `home.packages` -> `packages`.
+`dev/lsd.nix`, `dev/fish.nix`, `dev/bat.nix`, `dev/opencode.nix`,
+`audio/beets.nix`. Remaining: `audio/mpd.nix` (+ user unit), `noctalia.nix`,
+`ssh.nix`, `zen-browser/`, and `home.packages` -> `packages`.
