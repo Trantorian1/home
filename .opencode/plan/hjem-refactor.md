@@ -94,7 +94,7 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 | `obsidian.nix` | -> obsidian package only |
 | `noctalia.nix` | import `inputs.noctalia.hjemModules.default` (module now destructures `{ inputs, ... }`); keep `programs.noctalia` options unchanged (enable, systemd.enable, settings). Verified at pinned rev 6423cc2: the Hjem variant declares the same options and emits `packages`, `systemd.services.noctalia`, `xdg.config.files` (validated `config.toml`). **NOTE:** the HM variant referenced `config.wayland.systemd.target`, which does not exist in the locked nixpkgs 26.11 (dangling reference — the pre-refactor tree could not evaluate); the Hjem module uses its own `systemd.target` option, default `graphical-session.target`, matching nixpkgs' native `programs.noctalia` module |
 | `ssh.nix` | -> `files.".ssh"` (`type = "directory"`, 0700) + `files.".ssh/config".text`. Config text is byte-identical to the pinned HM rendering (verified by evaluating old module rev 6750249: github.com block first, `*` last; directives sorted within blocks). Note: HM's `settings` path passes raw names through verbatim, so the old github.com block's camelCase names (`user`, `identityFile`, `identitiesOnly`) were rendered literally — OpenSSH directive names are case-insensitive, kept as-is for byte fidelity. The `sops.*` block is dropped (owned by `system/nix/sops.nix`). No package carried (HM `programs.ssh.package` defaulted to null). |
-| `zen-browser/` | -> **Firefox profile — see hard problems** |
+| `zen-browser/` | -> **Full-module harvest (done).** Vendored HM's `mkFirefoxModule.nix` + `profiles/{bookmark-types,bookmarks,handlers,search}.nix` verbatim into `system/nix/home/zen-browser/` (byte-identical to pinned rev 6750249 and to master at the time of vendoring). The new Hjem module evaluates the rebranded factory in a minimal `home.*` option harness (`lib.evalModules` with stubbed `home.{stateVersion,homeDirectory,packages,file}` + nixpkgs' `assertions.nix` + a `targets.darwin.defaults` stub — the options HM's own module set provides) and maps the harvested `home.file` entries to Hjem `files` (`text`→text, `source`→source, `force`→clobber; no counterpart needed for `recursive` — a plain symlink of a directory source links the directory itself, exactly what HM's recursive symlinking does). Emits `packages = cfg.home.packages`. **FINDING (fidelity):** the old system's `policies` were NEVER baked into the wrapper — the zen flake's `callPackage` redefines `.override` (`__functionArgs = [wrapFirefox, zen-browser-unwrapped]`, no `cfg`), so mkFirefoxModule's wrapPackage takes its "cannot be reconfigured" warning branch and returns the plain wrapped package; the old system emitted that warning on every eval. Reproduced exactly (same warning, `finalPackage = zen-browser-1.23.4b`). See hard problem #1. |
 
 ---
 
@@ -174,7 +174,7 @@ keep `environment.sessionVariables` empty unless a POSIX-sourcing consumer appea
 
 ---
 
-## Hard problems (decisions pending)
+## Hard problems (both resolved — see status in each section)
 
 **1. Zen-browser Firefox profile.** Confirmed via `youwen5/zen-browser-flake` source that its
 package (`zen-browser-unwrapped.nix`) only bakes in **policies** → `distribution/policies.json`
@@ -203,6 +203,42 @@ via `config.zen.policies`. It does NOT handle `user.js`, bookmarks, search, or e
   `hjem.users.dev.files` (`text`→text, `source`→source, `force`→`clobber`, dir `.source` recursive).
   Reuses all rendering verbatim (profiles.ini, user.js, containers, handlers, extensions, bookmarks
   NBF, search mozlz4, policies).
+
+- **RESOLVED (item 11 done).** Vendored files (5, not 4 — `profiles/bookmark-types.nix` is a
+  dependency of `bookmarks.nix`): `mkFirefoxModule.nix`, `profiles/bookmark-types.nix`,
+  `profiles/bookmarks.nix`, `profiles/handlers.nix`, `profiles/search.nix`. The harvester
+  extends `lib` with the one HM-specific helper used, `hm.assertions.assertPlatform` (copied
+  from HM's `modules/lib/assertions.nix`).
+- **FINDING — policies were never applied by the old system either.** mkFirefoxModule tries to
+  bake `policies`/`pkcs11Modules`/`configPath` into the package via `package.override { cfg = ... }`,
+  but only when `lib.functionArgs package.override ? cfg`. The zen-browser flake builds its
+  package with `pkgs.callPackage ./zen-browser.nix {}`, and callPackage's `makeOverridable`
+  decorates the result so `.override.__functionArgs = [wrapFirefox, zen-browser-unwrapped]` —
+  the wrapper's own `cfg` argument is NOT exposed. So the check is false, mkFirefoxModule takes
+  its warning branch (`'zen-browser' cannot be reconfigured; 'policies', 'pkcs11Modules', and
+  'configPath' will not be applied.`) and returns the plain wrapped package. The pre-refactor
+  system emitted this warning on every evaluation — the `policies` block in the old module was
+  inert. **Fidelity decision: reproduce exactly** (same warning, same final package
+  `zen-browser-1.23.4b`); documented in the new module's comments. Potential follow-up fix
+  (out of scope for this refactor): call `wrapFirefox` directly with `cfg = { zen.policies = ... }`.
+- **FINDING — proton-pass 1.38.0 XPI URL is dead upstream.** `extensions.nix` pins
+  `https://addons.mozilla.org/firefox/downloads/file/4885390/proton_pass-1.38.0.xpi`, which now
+  404s (AMO purged the old file). A byte-identical copy was recovered from web.archive.org
+  (capture 20260713154813) and its sha256 matches the pinned hash
+  (`225b9636...ef9db`). Environmental issue only — `extensions.nix` is unchanged and shared by
+  old and new setups, so all comparisons are unaffected. Building the extensions env locally
+  requires realizing that XPI first (a fixed-output derivation with the same name+hash yields
+  the identical store path, after which nix skips the dead download).
+- **Validation (all passed).** Evaluation-level: ground truth from the pre-refactor module
+  (pinned HM rev 6750249 + locked nixpkgs) vs the new Hjem module — full text equality for
+  `profiles.ini`/`.keep`/`user.js`, store-path equality via content addressing for
+  `search.json.mozlz4` and the `extensions/` dir, `force`→`clobber` mapping, and final package
+  name. Artifact-level: every artifact actually built (incl. the full zen browser for the
+  mozlz4 runCommand) and the linked files cmp-identical to ground truth. CLI-level: the pinned
+  Hjem CLI ran `internal activate` with the real manifest — fresh activation links all five
+  entries (extensions as a symlink to the store directory, 5 XPIs inside), preserves
+  pre-existing user content in `.config/zen/default/`, and repairs a clobbered target on
+  incremental re-activation.
 
 **2. SOPS-decrypted SSH keys — DECISION: use sops-nix default NixOS module.**
 - Move `sops.*` out of the home namespace (`ssh.nix`) into a new `system/nix/sops.nix`, imported by
@@ -255,13 +291,13 @@ Done (commits `260a0b4`, `f889016`):
 Remaining:
 - [ ] Convert every module under `system/nix/home/` from HM style to Hjem linked files /
       generators / units (the tree does not build until this is done)
-- [ ] zen-browser Firefox profile harvest (hard problem #1) — biggest remaining item
+- [x] zen-browser Firefox profile harvest (hard problem #1) — DONE, see hard problem #1
 - [x] `.ssh` directory clobber behavior verified against the pinned Hjem CLI directly
       (contents preserved, perms enforced — see hard problem #2; qemu test no longer needed)
 - [x] Environment-variable approach confirmed: fish `set -gx` in conf.d files (see above)
 
 Converted so far (per-item harness-validated): `dev/git.nix`, `dev/ghostty.nix`,
 `dev/lsd.nix`, `dev/fish.nix`, `dev/bat.nix`, `dev/opencode.nix`,
-`audio/beets.nix`, `audio/mpd.nix`, `noctalia.nix`, `ssh.nix`. Remaining:
-`zen-browser/`, and `home.packages` -> `packages` (the last one also fixes
+`audio/beets.nix`, `audio/mpd.nix`, `noctalia.nix`, `ssh.nix`, `zen-browser/`.
+Remaining: `home.packages` -> `packages` (the last one also fixes
 `dev/default.nix`'s bare `unsloth` arg — see the specialArgs correction above).
