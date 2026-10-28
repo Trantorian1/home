@@ -67,9 +67,9 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 | `dev/default.nix` packages | -> `hjem.users.dev.packages` (nvim via `osConfig.rv.*`, unsloth, etc.) |
 | `dev/git.nix` | -> `xdg.config.files."git/config"` (`~/.config/git/config` — HM's actual XDG location, not `~/.gitconfig`) via `.generator` (`lib.generators.toGitINI`, byte-identical to HM) + git in `packages` |
 | `dev/fish.nix` | -> `~/.config/fish/fish.conf` as `.source`/`.text` (keep `rv` alias) |
-| `dev/ghostty.nix` | -> `~/.config/ghostty/config` as `.text` |
+| `dev/ghostty.nix` | -> `xdg.config.files."ghostty/config"` via keyValue `.generator` (`listsAsDuplicateKeys = true`, `" = "` — byte-identical to HM) + ghostty package **+** the app-service unit & `overrides.conf` drop-in linked from the package (HM's default-on `programs.ghostty.systemd` on Linux; verified the unit exists in pkgs.ghostty 1.3.1) |
 | `dev/lsd.nix` | -> `~/.config/lsd/config.yaml` via `.generator` (`pkgs.formats.yaml`) + a fish alias |
-| `dev/bat.nix` | -> bat package only; `MANPAGER` set in the fish config text (`set -gx MANPAGER ...`) — see environment-variables note below |
+| `dev/bat.nix` | -> bat package; `xdg.config.files."bat/config"` via HM's `toConfigFile` renderer (`--key=value` lines) fed by ghostty's `map-syntax`; `"bat/syntaxes/ghostty.sublime-syntax"` linked from `pkgs.ghostty` (HM's default-on `installBatSyntax`, file = `share/bat/syntaxes/ghostty.sublime-syntax` — verified present); `MANPAGER` set in the fish config text (`set -gx MANPAGER ...`) — see environment-variables note below. **OPEN:** HM also ran `bat cache --build` via a `home.activation` hook after linkGeneration; decide the Hjem equivalent (skip vs. user oneshot unit) |
 | `dev/opencode/` | -> `~/.config/opencode/opencode.json` via **JSON generator** + `type = "copy"`, see notes below |
 | `audio/beets.nix` | -> `~/.config/beets/config.yaml` via `.generator` |
 | `audio/mpd.nix` | -> `~/.config/mpd.conf` linked file **+** `systemd.services.mpd` user unit |
