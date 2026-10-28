@@ -31,11 +31,18 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
   config arrives as the special arg `osConfig`. Same `osConfig` convention the current HM
   modules already use — no rename needed.
 - Flake inputs that used to come through `home-manager.extraSpecialArgs`
-  (`unsloth`, `zen-browser`, `noctalia`) are exposed by passing `inputs` through each host's
-  `nixosSystem` call: `specialArgs = {inherit inputs;};` (already wired in all three host
-  files). Modules destructure `{ inputs, ... }` and reach `inputs.unsloth`,
-  `inputs.zen-browser`, `inputs.noctalia`. (`hjem.specialArgs` is an alternative Hjem-level
-  knob; not needed.)
+  (`unsloth`, `zen-browser`, `noctalia`) reach Hjem user modules via **`hjem.specialArgs`** —
+  set once in `system/nix/home/default.nix` as `hjem.specialArgs = {inherit inputs;};`.
+  Modules destructure `{ inputs, ... }` and reach `inputs.unsloth`,
+  `inputs.zen-browser`, `inputs.noctalia`.
+  **CORRECTION (verified):** NixOS-level specialArgs (the hosts'
+  `specialArgs = {inherit inputs;}` on their `nixosSystem` calls) do NOT flow into Hjem's user
+  submodule — `modules/nixos/base.nix` builds the submodule with
+  `specialArgs = cfg.specialArgs // { heim-lib osConfig pkgs utils osOptions }`, and nixpkgs'
+  `submoduleWith` does not merge in the parent's specialArgs. An earlier draft of this plan
+  claimed the host wiring was sufficient; it is not (a module destructuring a bare `noctalia`
+  or `unsloth` arg fails with "argument not externally provided"). The hosts' NixOS-level
+  `specialArgs = {inherit inputs;}` stays — top-level NixOS modules still need it.
 - Note: `pkgs`, `lib`, `osConfig`, plus Hjem's own `hjem-lib`/`utils` args, are also available
   in user modules.
 
@@ -85,7 +92,7 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 | `niri/` | -> validated `~/.config/niri/config.kdl` as `.source` (keep the `niri validate` build-time check) |
 | `obs.nix` | -> obs-studio + plugin packages only (config left to user) |
 | `obsidian.nix` | -> obsidian package only |
-| `noctalia.nix` | import `noctalia.hjemModules.default`; keep `programs.noctalia` options (enable, systemd.enable, settings). Emits `packages`, `systemd.services.noctalia`, `xdg.config.files` (validated `config.toml`). No manual generator/unit. |
+| `noctalia.nix` | import `inputs.noctalia.hjemModules.default` (module now destructures `{ inputs, ... }`); keep `programs.noctalia` options unchanged (enable, systemd.enable, settings). Verified at pinned rev 6423cc2: the Hjem variant declares the same options and emits `packages`, `systemd.services.noctalia`, `xdg.config.files` (validated `config.toml`). **NOTE:** the HM variant referenced `config.wayland.systemd.target`, which does not exist in the locked nixpkgs 26.11 (dangling reference — the pre-refactor tree could not evaluate); the Hjem module uses its own `systemd.target` option, default `graphical-session.target`, matching nixpkgs' native `programs.noctalia` module |
 | `ssh.nix` | -> `~/.ssh/config` as `.text`; **secrets handling — see hard problems** |
 | `zen-browser/` | -> **Firefox profile — see hard problems** |
 
@@ -252,5 +259,6 @@ Remaining:
 
 Converted so far (per-item harness-validated): `dev/git.nix`, `dev/ghostty.nix`,
 `dev/lsd.nix`, `dev/fish.nix`, `dev/bat.nix`, `dev/opencode.nix`,
-`audio/beets.nix`, `audio/mpd.nix`. Remaining: `noctalia.nix`, `ssh.nix`,
-`zen-browser/`, and `home.packages` -> `packages`.
+`audio/beets.nix`, `audio/mpd.nix`, `noctalia.nix`. Remaining: `ssh.nix`,
+`zen-browser/`, and `home.packages` -> `packages` (the last one also fixes
+`dev/default.nix`'s bare `unsloth` arg — see the specialArgs correction above).
