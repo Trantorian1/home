@@ -70,7 +70,7 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 | `dev/ghostty.nix` | -> `xdg.config.files."ghostty/config"` via keyValue `.generator` (`listsAsDuplicateKeys = true`, `" = "` — byte-identical to HM) + ghostty package **+** the app-service unit & `overrides.conf` drop-in linked from the package (HM's default-on `programs.ghostty.systemd` on Linux; verified the unit exists in pkgs.ghostty 1.3.1) |
 | `dev/lsd.nix` | -> lsd package; `xdg.config.files."lsd/colors.yaml"` (catppuccin-latte) **and** `"lsd/config.yaml"` (`color.theme: custom`, which HM auto-adds whenever colors is set) via `pkgs.formats.yaml` `.generator`s; fish aliases (`ls/ll/la/lt/lla/llt`) as `fish/conf.d/lsd.fish` rendered with HM's exact `alias <k> <escapeShellArg v>` form |
 | `dev/bat.nix` | -> bat package; `xdg.config.files."bat/config"` via HM's `toConfigFile` renderer (`--key=value` lines, byte-identical — verified by reconstructing the exact writeTextFile drv) fed by ghostty's `map-syntax`; `"bat/syntaxes/ghostty.sublime-syntax"` linked from `pkgs.ghostty` (HM's default-on `installBatSyntax`, file = `share/bat/syntaxes/ghostty.sublime-syntax` — verified present); `MANPAGER` in `fish/conf.d/bat.fish` as `set -gx MANPAGER "bat -l man -p"` (user-confirmed option 1; Hjem's `sessionVariables` cannot reach a fish session). **DECISION:** HM's `home.activation.batCache` hook (`bat cache --build`) is skipped for now — the cache rebuilds lazily on first use after each impermanent boot; revisit only if post-reboot bat startup feels slow |
-| `dev/opencode/` | -> `~/.config/opencode/opencode.json` via **JSON generator** + `type = "copy"`, see notes below |
+| `dev/opencode/` | -> `xdg.config.files."opencode/opencode.json"` with `type = "copy"` + JSON `.generator` (see notes below); flattened to `dev/opencode.nix` and moved into `dev/default.nix` imports (was imported from `user.nix` at NixOS level because the old module used `system.userActivationScripts`) |
 | `audio/beets.nix` | -> `~/.config/beets/config.yaml` via `.generator` |
 | `audio/mpd.nix` | -> `~/.config/mpd.conf` linked file **+** `systemd.services.mpd` user unit |
 | `niri/` | -> validated `~/.config/niri/config.kdl` as `.source` (keep the `niri validate` build-time check) |
@@ -136,6 +136,14 @@ hand-rolling linked-file / systemd logic.
   };
 };
 ```
+
+Verified (item done): `pkgs.formats.json` on the pinned nixpkgs renders pretty-printed
+(2-space indent) with **sorted keys**, so on-disk bytes differ from the old file only in key
+order — deep-compared the rendering against the original JSON: semantically identical. The
+default Hjem linker is the CLI linker (`hjem.linker = cli.package`), which honors `type = "copy"`
+(the systemd-tmpfiles fallback mode would symlink everything, so copy semantics depend on the
+default linker). With `clobberFiles = true` the file is refreshed on every activation, matching
+the old `cp -r` script.
 
 ## Environment variables (verified caveat)
 
@@ -234,6 +242,6 @@ Remaining:
 - [x] Environment-variable approach confirmed: fish `set -gx` in conf.d files (see above)
 
 Converted so far (per-item harness-validated): `dev/git.nix`, `dev/ghostty.nix`,
-`dev/lsd.nix`, `dev/fish.nix`, `dev/bat.nix`. Remaining: `dev/opencode/`,
+`dev/lsd.nix`, `dev/fish.nix`, `dev/bat.nix`, `dev/opencode.nix`. Remaining:
 `audio/beets.nix`, `audio/mpd.nix` (+ user unit), `noctalia.nix`, `ssh.nix`,
 `zen-browser/`, and `home.packages` -> `packages`.
