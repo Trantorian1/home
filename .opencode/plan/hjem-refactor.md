@@ -93,7 +93,7 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 | `obs.nix` | -> obs-studio + plugin packages only (config left to user) |
 | `obsidian.nix` | -> obsidian package only |
 | `noctalia.nix` | import `inputs.noctalia.hjemModules.default` (module now destructures `{ inputs, ... }`); keep `programs.noctalia` options unchanged (enable, systemd.enable, settings). Verified at pinned rev 6423cc2: the Hjem variant declares the same options and emits `packages`, `systemd.services.noctalia`, `xdg.config.files` (validated `config.toml`). **NOTE:** the HM variant referenced `config.wayland.systemd.target`, which does not exist in the locked nixpkgs 26.11 (dangling reference — the pre-refactor tree could not evaluate); the Hjem module uses its own `systemd.target` option, default `graphical-session.target`, matching nixpkgs' native `programs.noctalia` module |
-| `ssh.nix` | -> `~/.ssh/config` as `.text`; **secrets handling — see hard problems** |
+| `ssh.nix` | -> `files.".ssh"` (`type = "directory"`, 0700) + `files.".ssh/config".text`. Config text is byte-identical to the pinned HM rendering (verified by evaluating old module rev 6750249: github.com block first, `*` last; directives sorted within blocks). Note: HM's `settings` path passes raw names through verbatim, so the old github.com block's camelCase names (`user`, `identityFile`, `identitiesOnly`) were rendered literally — OpenSSH directive names are case-insensitive, kept as-is for byte fidelity. The `sops.*` block is dropped (owned by `system/nix/sops.nix`). No package carried (HM `programs.ssh.package` defaulted to null). |
 | `zen-browser/` | -> **Firefox profile — see hard problems** |
 
 ---
@@ -218,18 +218,20 @@ via `config.zen.policies`. It does NOT handle `user.js`, bookmarks, search, or e
   sops.secrets."host/${config.networking.hostName}/github"    = { owner = "dev"; path = "/home/dev/.ssh/github"; };
   ```
 - `path` creates a symlink `<target> -> /run/secrets/<name>` at NixOS activation.
-- **CONFIRMED (with one open verification): `.ssh` directory + permissions.** Hjem creates
-  `~/.ssh` as a `type = "directory"` (0700) entry and links `~/.ssh/config` (text); sops-nix
-  `path` symlinks place the two private keys. Activation ordering is now verified: with the
-  default CLI linker, sops-nix tmpfiles place the key symlinks at *sysinit*, while Hjem's
-  `hjem-activate@dev` service runs later at *multi-user* as user `dev` — no race there. The
-  remaining risk is **clobber semantics**, not ordering: on an impermanent boot `/home/dev`
-  starts empty, sops tmpfiles create `~/.ssh` + the key symlinks first, and if Hjem's CLI
-  linker *recreates* an already-existing target for a `type = "directory"` entry it would wipe
-  those symlinks within the same boot. ACTION: verify how the CLI linker treats an existing
-  directory target (test in qemu before desktop); fallbacks are letting sops/tmpfiles own the
-  directory (drop Hjem's `.ssh` entry, keep only `config`) or using non-destructive semantics
-  for it.
+- **RESOLVED: `.ssh` directory + permissions.** Hjem creates `~/.ssh` as a
+  `type = "directory"` (0700) entry and links `~/.ssh/config` (text); sops-nix `path` symlinks
+  place the two private keys. Activation ordering verified: with the default CLI linker,
+  sops-nix tmpfiles place the key symlinks at *sysinit*, while Hjem's `hjem-activate@dev`
+  service runs later at *multi-user* as user `dev` — no race there. The clobber question is
+  now **verified against the pinned Hjem CLI** (rev d219ef55, built and run directly with a
+  manifest in the exact shape `modules/nixos/base.nix` generates):
+  - fresh home: `.ssh` created `0700`, `config` symlinked into it;
+  - pre-existing `.ssh` containing key files (the impermanent-boot/sops scenario): contents
+    preserved, no wipe, `config` linked in alongside — the linker does NOT recreate an
+    existing directory target;
+  - pre-existing `.ssh` with loose `0755` perms: re-chmodded to `0700`;
+  - re-run with state present (incremental mode): no-op, everything stable.
+  No qemu test needed; the fallbacks above are not required.
 
 ---
 
@@ -254,11 +256,12 @@ Remaining:
 - [ ] Convert every module under `system/nix/home/` from HM style to Hjem linked files /
       generators / units (the tree does not build until this is done)
 - [ ] zen-browser Firefox profile harvest (hard problem #1) — biggest remaining item
-- [ ] Verify `.ssh` directory clobber behavior in qemu (hard problem #2 action)
+- [x] `.ssh` directory clobber behavior verified against the pinned Hjem CLI directly
+      (contents preserved, perms enforced — see hard problem #2; qemu test no longer needed)
 - [x] Environment-variable approach confirmed: fish `set -gx` in conf.d files (see above)
 
 Converted so far (per-item harness-validated): `dev/git.nix`, `dev/ghostty.nix`,
 `dev/lsd.nix`, `dev/fish.nix`, `dev/bat.nix`, `dev/opencode.nix`,
-`audio/beets.nix`, `audio/mpd.nix`, `noctalia.nix`. Remaining: `ssh.nix`,
+`audio/beets.nix`, `audio/mpd.nix`, `noctalia.nix`, `ssh.nix`. Remaining:
 `zen-browser/`, and `home.packages` -> `packages` (the last one also fixes
 `dev/default.nix`'s bare `unsloth` arg — see the specialArgs correction above).
