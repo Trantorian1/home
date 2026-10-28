@@ -69,7 +69,7 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 | `dev/fish.nix` | -> `xdg.config.files."fish/config.fish"` (the file fish actually loads — earlier draft said `fish.conf`, which fish ignores; HM wrote its generated config to `config.fish`): greeting off + `e`/`rv` aliases under an interactive guard, rendered with HM's `escapeShellArg`; `rv` uses `osConfig.rv.editor` (was `nixosConfig.rv.editor`). No fish package here — provided by system-level `programs.fish`; lsd aliases live in `conf.d/lsd.fish` |
 | `dev/ghostty.nix` | -> `xdg.config.files."ghostty/config"` via keyValue `.generator` (`listsAsDuplicateKeys = true`, `" = "` — byte-identical to HM) + ghostty package **+** the app-service unit & `overrides.conf` drop-in linked from the package (HM's default-on `programs.ghostty.systemd` on Linux; verified the unit exists in pkgs.ghostty 1.3.1) |
 | `dev/lsd.nix` | -> lsd package; `xdg.config.files."lsd/colors.yaml"` (catppuccin-latte) **and** `"lsd/config.yaml"` (`color.theme: custom`, which HM auto-adds whenever colors is set) via `pkgs.formats.yaml` `.generator`s; fish aliases (`ls/ll/la/lt/lla/llt`) as `fish/conf.d/lsd.fish` rendered with HM's exact `alias <k> <escapeShellArg v>` form |
-| `dev/bat.nix` | -> bat package; `xdg.config.files."bat/config"` via HM's `toConfigFile` renderer (`--key=value` lines) fed by ghostty's `map-syntax`; `"bat/syntaxes/ghostty.sublime-syntax"` linked from `pkgs.ghostty` (HM's default-on `installBatSyntax`, file = `share/bat/syntaxes/ghostty.sublime-syntax` — verified present); `MANPAGER` set in the fish config text (`set -gx MANPAGER ...`) — see environment-variables note below. **OPEN:** HM also ran `bat cache --build` via a `home.activation` hook after linkGeneration; decide the Hjem equivalent (skip vs. user oneshot unit) |
+| `dev/bat.nix` | -> bat package; `xdg.config.files."bat/config"` via HM's `toConfigFile` renderer (`--key=value` lines, byte-identical — verified by reconstructing the exact writeTextFile drv) fed by ghostty's `map-syntax`; `"bat/syntaxes/ghostty.sublime-syntax"` linked from `pkgs.ghostty` (HM's default-on `installBatSyntax`, file = `share/bat/syntaxes/ghostty.sublime-syntax` — verified present); `MANPAGER` in `fish/conf.d/bat.fish` as `set -gx MANPAGER "bat -l man -p"` (user-confirmed option 1; Hjem's `sessionVariables` cannot reach a fish session). **DECISION:** HM's `home.activation.batCache` hook (`bat cache --build`) is skipped for now — the cache rebuilds lazily on first use after each impermanent boot; revisit only if post-reboot bat startup feels slow |
 | `dev/opencode/` | -> `~/.config/opencode/opencode.json` via **JSON generator** + `type = "copy"`, see notes below |
 | `audio/beets.nix` | -> `~/.config/beets/config.yaml` via `.generator` |
 | `audio/mpd.nix` | -> `~/.config/mpd.conf` linked file **+** `systemd.services.mpd` user unit |
@@ -144,9 +144,9 @@ itself; it only renders a POSIX (`export ...`) script at `environment.loadEnv`, 
 sourced manually. Our session shell is fish, which cannot source bash syntax, so variables
 set only via `sessionVariables` would silently have no effect.
 
-**PENDING DECISION (recommended):** set user-facing variables (e.g. `MANPAGER` for bat)
-directly in the fish config text as `set -gx NAME value;`; keep `environment.sessionVariables`
-empty unless a POSIX-sourcing consumer appears.
+**DECISION (confirmed 2026-10-28):** set user-facing variables (e.g. `MANPAGER` for bat)
+directly in the fish config as `set -gx NAME value;` in a dedicated `fish/conf.d/*.fish` file;
+keep `environment.sessionVariables` empty unless a POSIX-sourcing consumer appears.
 
 ---
 
@@ -231,4 +231,9 @@ Remaining:
       generators / units (the tree does not build until this is done)
 - [ ] zen-browser Firefox profile harvest (hard problem #1) — biggest remaining item
 - [ ] Verify `.ssh` directory clobber behavior in qemu (hard problem #2 action)
-- [ ] Confirm environment-variable approach (fish `set -gx` vs `sessionVariables`)
+- [x] Environment-variable approach confirmed: fish `set -gx` in conf.d files (see above)
+
+Converted so far (per-item harness-validated): `dev/git.nix`, `dev/ghostty.nix`,
+`dev/lsd.nix`, `dev/fish.nix`, `dev/bat.nix`. Remaining: `dev/opencode/`,
+`audio/beets.nix`, `audio/mpd.nix` (+ user unit), `noctalia.nix`, `ssh.nix`,
+`zen-browser/`, and `home.packages` -> `packages`.
