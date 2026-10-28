@@ -24,14 +24,39 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 
 ## Module inputs (how modules reach shared values)
 
-- Values already present in the NixOS `config` are reached via the `config` input:
-  `config.rv.editor` / `config.rv.nvim` (was `osConfig.rv.*`), `config.networking.hostName`
-  (was `osConfig.networking.hostName`).
+- Values already present in the NixOS config are reached via the **`osConfig`** input inside
+  Hjem user modules: `osConfig.rv.editor` / `osConfig.rv.nvim`, `osConfig.networking.hostName`.
+  Verified against Hjem source (`modules/nixos/base.nix`): each `hjem.users.<username>` is
+  evaluated as its own module system where `config` is the *user*-scoped config and the NixOS
+  config arrives as the special arg `osConfig`. Same `osConfig` convention the current HM
+  modules already use — no rename needed.
 - Flake inputs that used to come through `home-manager.extraSpecialArgs`
-  (`unsloth`, `zen-browser`, `noctalia`) are exposed to Hjem user modules by adding `inputs`
-  to the NixOS module inputs, e.g. `_module.args = { inherit inputs; }`, so modules destructure
-  `{ inputs, ... }` and reach `inputs.unsloth`, `inputs.zen-browser`, `inputs.noctalia`.
-- Note: `pkgs`, `lib`, `self`, `osConfig` are also available as normal module args.
+  (`unsloth`, `zen-browser`, `noctalia`) are exposed by passing `inputs` through each host's
+  `nixosSystem` call: `specialArgs = {inherit inputs;};` (already wired in all three host
+  files). Modules destructure `{ inputs, ... }` and reach `inputs.unsloth`,
+  `inputs.zen-browser`, `inputs.noctalia`. (`hjem.specialArgs` is an alternative Hjem-level
+  knob; not needed.)
+- Note: `pkgs`, `lib`, `osConfig`, plus Hjem's own `hjem-lib`/`utils` args, are also available
+  in user modules.
+
+## Hjem API notes (verified against docs + source)
+
+- File entries accept `type = symlink|copy|delete|directory|modify` (default `symlink`).
+  `source`/`text` are only allowed — and required — for `symlink`/`copy`;
+  `permissions`/`uid`/`gid` are only allowed for `copy`/`directory`/`delete`/`modify`, so
+  setting them on a `symlink` entry throws. A `type = "directory"` entry needs no `source`.
+- `generator` auto-detects its output: a derivation becomes `source` (store file), a string
+  becomes `text`. So `pkgs.formats.{json,yaml} {}.generate` -> store file;
+  `lib.generators.toGitINI` -> inline text.
+- XDG file namespaces exist as an alternative to dotted paths:
+  `xdg.config.files."opencode/opencode.json"` ~= `files.".config/opencode/opencode.json"`.
+  Both merge into one manifest per user; noctalia's Hjem module emits `xdg.config.files`, so
+  mixing both styles in one user config is fine.
+- User systemd units (`systemd.services` & friends, full NixOS unit options) are linked into
+  `~/.config/systemd/user/` and registered in system `systemd.units`; `hjem-reload@<user>`
+  reloads changed user units after file activation when the user manager is running.
+- Each user config is a standard NixOS module: `imports` and `assertions` work, which is what
+  makes per-user `imports = [inputs.noctalia.hjemModules.default]` valid.
 
 ---
 
@@ -40,11 +65,11 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 | Current | Hjem equivalent |
 |---------|-----------------|
 | `dev/default.nix` packages | -> `hjem.users.dev.packages` (nvim via `osConfig.rv.*`, unsloth, etc.) |
-| `dev/git.nix` | -> `~/.gitconfig` as `.text` (INI) |
+| `dev/git.nix` | -> `xdg.config.files."git/config"` (`~/.config/git/config` — HM's actual XDG location, not `~/.gitconfig`) via `.generator` (`lib.generators.toGitINI`, byte-identical to HM) + git in `packages` |
 | `dev/fish.nix` | -> `~/.config/fish/fish.conf` as `.source`/`.text` (keep `rv` alias) |
 | `dev/ghostty.nix` | -> `~/.config/ghostty/config` as `.text` |
 | `dev/lsd.nix` | -> `~/.config/lsd/config.yaml` via `.generator` (`pkgs.formats.yaml`) + a fish alias |
-| `dev/bat.nix` | -> `MANPAGER` in `environment.sessionVariables` + bat package (no config file needed) |
+| `dev/bat.nix` | -> bat package only; `MANPAGER` set in the fish config text (`set -gx MANPAGER ...`) — see environment-variables note below |
 | `dev/opencode/` | -> `~/.config/opencode/opencode.json` via **JSON generator** + `type = "copy"`, see notes below |
 | `audio/beets.nix` | -> `~/.config/beets/config.yaml` via `.generator` |
 | `audio/mpd.nix` | -> `~/.config/mpd.conf` linked file **+** `systemd.services.mpd` user unit |
@@ -112,6 +137,17 @@ hand-rolling linked-file / systemd logic.
 };
 ```
 
+## Environment variables (verified caveat)
+
+Hjem's `environment.sessionVariables` does NOT inject anything into the user session by
+itself; it only renders a POSIX (`export ...`) script at `environment.loadEnv`, which must be
+sourced manually. Our session shell is fish, which cannot source bash syntax, so variables
+set only via `sessionVariables` would silently have no effect.
+
+**PENDING DECISION (recommended):** set user-facing variables (e.g. `MANPAGER` for bat)
+directly in the fish config text as `set -gx NAME value;`; keep `environment.sessionVariables`
+empty unless a POSIX-sourcing consumer appears.
+
 ---
 
 ## Hard problems (decisions pending)
@@ -158,10 +194,18 @@ via `config.zen.policies`. It does NOT handle `user.js`, bookmarks, search, or e
   sops.secrets."host/${config.networking.hostName}/github"    = { owner = "dev"; path = "/home/dev/.ssh/github"; };
   ```
 - `path` creates a symlink `<target> -> /run/secrets/<name>` at NixOS activation.
-- **OPEN (now confirmed): `.ssh` directory + permissions.** Hjem creates `~/.ssh` as a
-  `type = "directory"` (0700) entry and links `~/.ssh/config` (text); sops-nix `path` symlinks
-  place the two private keys. Verify activation ordering (Hjem tmpfiles vs sops activation) and
-  add systemd `After`/`Requires` on the sops service only if the symlink creation races.
+- **CONFIRMED (with one open verification): `.ssh` directory + permissions.** Hjem creates
+  `~/.ssh` as a `type = "directory"` (0700) entry and links `~/.ssh/config` (text); sops-nix
+  `path` symlinks place the two private keys. Activation ordering is now verified: with the
+  default CLI linker, sops-nix tmpfiles place the key symlinks at *sysinit*, while Hjem's
+  `hjem-activate@dev` service runs later at *multi-user* as user `dev` — no race there. The
+  remaining risk is **clobber semantics**, not ordering: on an impermanent boot `/home/dev`
+  starts empty, sops tmpfiles create `~/.ssh` + the key symlinks first, and if Hjem's CLI
+  linker *recreates* an already-existing target for a `type = "directory"` entry it would wipe
+  those symlinks within the same boot. ACTION: verify how the CLI linker treats an existing
+  directory target (test in qemu before desktop); fallbacks are letting sops/tmpfiles own the
+  directory (drop Hjem's `.ssh` entry, keep only `config`) or using non-destructive semantics
+  for it.
 
 ---
 
@@ -170,3 +214,21 @@ via `config.zen.policies`. It does NOT handle `user.js`, bookmarks, search, or e
 `users.users.dev` account, `mutableUsers`, `greetd` auto-login,
 `programs.fish/niri/dconf/wireshark/steam`, `environment.etc.nixos.source`,
 `environment.systemPackages` (xwayland-satellite), hardware reports, installer flow.
+
+## Progress (as of 2026-10-28)
+
+Done (commits `260a0b4`, `f889016`):
+- [x] `flake.nix`: `home-manager` input -> `hjem`; `configuration.nix` imports
+      `hjem.nixosModules.default`, HM flags/args dropped
+- [x] `system/nix/sops.nix` created (self-contained, owns dev SSH-key secrets) and imported
+      by `system/nix/default.nix`
+- [x] All three hosts pass `specialArgs = {inherit inputs;}` to their `nixosSystem` calls
+- [x] `system/nix/home/default.nix`: `home-manager.users.dev` -> `hjem.users.dev`
+      (`directory`, `clobberFiles`, `imports`, `packages`)
+
+Remaining:
+- [ ] Convert every module under `system/nix/home/` from HM style to Hjem linked files /
+      generators / units (the tree does not build until this is done)
+- [ ] zen-browser Firefox profile harvest (hard problem #1) — biggest remaining item
+- [ ] Verify `.ssh` directory clobber behavior in qemu (hard problem #2 action)
+- [ ] Confirm environment-variable approach (fish `set -gx` vs `sessionVariables`)
