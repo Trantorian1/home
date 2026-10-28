@@ -2,3 +2,4 @@ result
 drive.img
 *.iso
 secrets/keys
+.env

@@ -10,6 +10,23 @@
         "apiKey": "{env:UNSLOTH_API_KEY}"
       },
       "models": {
+        "flint": {
+          "name": "Recursive Flint",
+          "modelID": "flint-GGUF:Q8_0",
+          "capabilities": {
+            "tools": true,
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 262144
+          }
+        },
         "ornith-1.5": {
           "name": "Ornith-1.5 (local)",
           "modelID": "Ornith-1.5-35B-A3B-GGUF:Q8_0",
@@ -24,7 +41,7 @@
             ]
           },
           "limit": {
-            "context": 262144,
+            "context": 262144
           }
         }
       }

@@ -50,6 +50,11 @@
       url = "github:trantorian1/rv";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    opencode-sandbox = {
+      url = "github:OpencodeSandbox/opencode-sandbox?ref=feat/opencodev2";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}:
@@ -62,13 +67,26 @@
       ];
 
       perSystem = {
+        inputs',
         self',
         pkgs,
         ...
       }: {
         formatter = pkgs.alejandra;
 
-        packages = {
+        packages = rec {
+          sandbox = inputs'.opencode-sandbox.packages.sandbox.override {
+            opencode-sandbox = {
+              git.remote.url = "https://github.com/Trantorian1/home.git";
+              git.shutdown.pushOnExit = false;
+              git.withLocalChanges = true;
+
+              env.extend = [env];
+              opencode.config.mountHomeConfig = true;
+              forwardPorts = [8888];
+            };
+          };
+
           env = pkgs.buildEnv {
             name = "devenv";
             paths = with pkgs; [
@@ -76,6 +94,7 @@
               nixos-facter
               nix-index
               nurl
+              self'.formatter
 
               # iso remastering
               libisoburn
