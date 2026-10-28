@@ -1,4 +1,13 @@
-{pkgs, ...}: {
+{
+  inputs,
+  pkgs,
+  ...
+}: {
+  # Make the flake inputs available inside Hjem user modules (replaces the
+  # old home-manager.extraSpecialArgs). NixOS-level specialArgs do NOT flow
+  # into Hjem's user submodule — only hjem.specialArgs does.
+  hjem.specialArgs = {inherit inputs;};
+
   # Hjem does NOT create the `dev` user, it only configures it. Any
   # system-wide user settings need to be specified in `user.nix` instead.
   hjem.users.dev = {
