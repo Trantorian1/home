@@ -16,10 +16,6 @@
       inputs.rv.nixosModules.default
     ];
 
-    # No custom Hjem modules are vendored; all programs are expressed as linked
-    # files / generators under `hjem.users.dev`.
-    jem.extraModules = [];
-
     # TODO: it would be nice to move this to a home-manager configuration instead.
     rv.runtimeDeps = with pkgs; [cargo-bolero];
     rv.rustVersion = "nightly";
