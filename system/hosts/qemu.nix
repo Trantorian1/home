@@ -14,6 +14,7 @@
   };
 
   flake.nixosConfigurations.qemu = inputs.nixpkgs.lib.nixosSystem {
+    specialArgs = {inherit inputs;};
     modules = [self.nixosModules.qemu];
   };
 }

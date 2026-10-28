@@ -20,10 +20,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    home-manager = {
-      # CAUTION: this needs to be kept in sync with the version of `nixpkgs`
-      # being used
-      url = "github:nix-community/home-manager";
+    hjem = {
+      url = "github:feel-co/hjem";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

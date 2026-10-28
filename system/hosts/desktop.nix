@@ -16,6 +16,7 @@
   };
 
   flake.nixosConfigurations.desktop = inputs.nixpkgs.lib.nixosSystem {
+    specialArgs = {inherit inputs;};
     modules = [self.nixosModules.desktop];
   };
 }
