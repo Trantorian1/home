@@ -29,7 +29,7 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
   (was `osConfig.networking.hostName`).
 - Flake inputs that used to come through `home-manager.extraSpecialArgs`
   (`unsloth`, `zen-browser`, `noctalia`) are exposed to Hjem user modules by adding `inputs`
-  to the NixOS module inputs, e.g. `_config.args = { inherit inputs; }`, so modules destructure
+  to the NixOS module inputs, e.g. `_module.args = { inherit inputs; }`, so modules destructure
   `{ inputs, ... }` and reach `inputs.unsloth`, `inputs.zen-browser`, `inputs.noctalia`.
 - Note: `pkgs`, `lib`, `self`, `osConfig` are also available as normal module args.
 
@@ -51,11 +51,48 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 | `niri/` | -> validated `~/.config/niri/config.kdl` as `.source` (keep the `niri validate` build-time check) |
 | `obs.nix` | -> obs-studio + plugin packages only (config left to user) |
 | `obsidian.nix` | -> obsidian package only |
-| `noctalia.nix` | -> `~/.config/noctalia/config.toml` via `.generator` (TOML) **+** `systemd.services.noctalia` |
+| `noctalia.nix` | import `noctalia.hjemModules.default`; keep `programs.noctalia` options (enable, systemd.enable, settings). Emits `packages`, `systemd.services.noctalia`, `xdg.config.files` (validated `config.toml`). No manual generator/unit. |
 | `ssh.nix` | -> `~/.ssh/config` as `.text`; **secrets handling — see hard problems** |
 | `zen-browser/` | -> **Firefox profile — see hard problems** |
 
 ---
+
+## Upstream Hjem modules (prefer over hand-rolling)
+
+Some upstream projects ship ready-made Hjem modules. These should be preferred over
+hand-rolling linked-file / systemd logic.
+
+### noctalia
+
+`noctalia` exposes three module variants in its flake outputs: `homeModules.default`
+(home-manager), `hjemModules.default` (Hjem), and `nixosModules.default` (NixOS).
+
+```nix
+# system/nix/home/noctalia.nix (after)
+{ inputs, osConfig, pkgs, ... }: {
+  imports = [inputs.noctalia.hjemModules.default];
+
+  programs.noctalia = {
+    enable = true;
+    systemd.enable = true;
+    settings = { ... };   # unchanged from the home-manager version
+  };
+}
+```
+
+- Declares the **same** `programs.noctalia` options as the home-manager module
+  (`enable`, `systemd.enable`, `systemd.target`, `package`, `validateConfig`,
+  `settings`, `customPalettes`), so the module body is otherwise unchanged.
+- Emits `packages`, `systemd.services.noctalia` (`wantedBy = [systemd.target]`,
+  `enableDefaultPath = false` so it does not clobber the user manager PATH), and
+  `xdg.config.files` — `noctalia/config.toml` via `toml.generate` plus optional
+  `noctalia/palettes/<name>.json`.
+- `noctalia.hjemModules.default` sets
+  `programs.noctalia.package = lib.mkDefault self.packages.<system>.default`, so the
+  package is provided and `validateConfig` (default `true`) validates `config.toml` at
+  build time. No manual TOML generator or systemd unit is needed.
+- `noctalia.settings.wallpaper.default.path = ../../../wallpaper.png` is a Nix path;
+  `toml.generate` stringifies it (matches prior behavior).
 
 ## `opencode.json` specifics (per user notes)
 
@@ -82,8 +119,10 @@ Keep the modular file organization under `home/` (small `.nix` files), each cont
 **1. Zen-browser Firefox profile.** Confirmed via `youwen5/zen-browser-flake` source that its
 package (`zen-browser-unwrapped.nix`) only bakes in **policies** → `distribution/policies.json`
 via `config.zen.policies`. It does NOT handle `user.js`, bookmarks, search, or extensions.
-- In the current config these come from **nixpkgs's `mkFirefoxModule`** (rebranded as the project's
-  zen-browser HM module in `system/nix/home/zen-browser/default.nix`), NOT from zen-browser-flake.
+- In the current config these come from **home-manager's `mkFirefoxModule`** (rebranded as the
+  project's zen-browser HM module in `system/nix/home/zen-browser/default.nix`), NOT from
+  zen-browser-flake, and NOT from nixpkgs (nixpkgs no longer ships this module). Source of record:
+  https://raw.githubusercontent.com/nix-community/home-manager/master/modules/programs/firefox/mkFirefoxModule.nix
 - Studied `nix-community/home-manager`'s `programs/firefox/mkFirefoxModule.nix`: it is a module
   factory that renders the whole profile into `home.file` — `profiles.ini`, `user.js`,
   `containers.json`, `handlers.json`, the `extensions/` dir, and (the hard/fragile parts)
