@@ -12,16 +12,17 @@
 
       inputs.disko.nixosModules.disko
       inputs.preservation.nixosModules.default
-      inputs.home-manager.nixosModules.home-manager
+      inputs.hjem.nixosModules.default
       inputs.rv.nixosModules.default
     ];
+
+    # No custom Hjem modules are vendored; all programs are expressed as linked
+    # files / generators under `hjem.users.dev`.
+    jem.extraModules = [];
 
     # TODO: it would be nice to move this to a home-manager configuration instead.
     rv.runtimeDeps = with pkgs; [cargo-bolero];
     rv.rustVersion = "nightly";
-
-    home-manager.sharedModules = [inputs.sops-nix.homeManagerModules.sops];
-    home-manager.extraSpecialArgs = {inherit (inputs) zen-browser noctalia unsloth;};
 
     nix.settings.experimental-features = [
       "nix-command"
