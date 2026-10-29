@@ -73,12 +73,15 @@
             location = "${pkgs.fetchFromGitHub {
               owner = "noctalia-dev";
               repo = "official-plugins";
-              rev = "24b3676fbc54e4b55657e14a8a1d645017564606";
-              hash = "sha256-FqySr05EZeaLb2ETzYxjJ3zoXMk2bajsYuG+LbfbTjI=";
+              rev = "285c6b7e793664cc66aaf4bdfbd43c5bd2f9608f";
+              hash = "sha256-B53XquTNO2unRHBWsMCSN1koaby98NzI+dz9ohKB0wE=";
             }}";
           }
         ];
       };
+
+      # Disable all lockscreen transitions.
+      lockscreen.transition = [];
 
       # Audio visualizer
       desktop_widgets = {
@@ -122,44 +125,6 @@
               background = false;
               show_when_idle = false;
               bands = 32;
-            };
-          };
-        };
-      };
-
-      # A simple lockscreen with only a centered login bar
-      lockscreen_widgets = {
-        enabled = true;
-        schema_version = 2;
-        widget_order = ["lockscreen-login-box@HDMI-A-1"];
-
-        grid = {
-          cell_size = 16;
-          major_interval = 4;
-          visible = true;
-        };
-
-        widget = {
-          "lockscreen-login-box@HDMI-A-1" = {
-            box_height = 70.0;
-            box_width = 400.0;
-            cx = 1280.0;
-            cy = 720.0;
-            output = "HDMI-A-1";
-            rotation = 0.0;
-            type = "login_box";
-
-            settings = {
-              background_color = "surface_variant";
-              background_opacity = 0.88;
-              background_radius = 12.0;
-              center_password_text = false;
-              input_opacity = 1.0;
-              input_radius = 6.0;
-              show_caps_lock = true;
-              show_keyboard_layout = false;
-              show_login_button = false;
-              show_password_hint = false;
             };
           };
         };
