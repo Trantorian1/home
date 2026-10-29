@@ -3,10 +3,6 @@
   pkgs,
   ...
 }: {
-  # Replaces home-manager's `programs.lsd`: installs lsd, writes the
-  # catppuccin-latte colors.yaml plus the config.yaml HM auto-generates when a
-  # custom color theme is set (`color.theme = "custom"`), and provides the fish
-  # aliases (was programs.lsd.enableFishIntegration = true).
   packages = [pkgs.lsd];
 
   xdg.config.files = {
@@ -61,15 +57,11 @@
       };
     };
 
-    # HM auto-sets settings.color.theme = "custom" whenever `colors` is
-    # non-empty, which makes it render lsd/config.yaml as well.
     "lsd/config.yaml" = {
       generator = (pkgs.formats.yaml {}).generate "lsd-config";
       value = {color.theme = "custom";};
     };
 
-    # Rendered exactly as HM's fish module renders shellAliases:
-    # `alias <name> <escapeShellArg value>` (sorted by name).
     "fish/conf.d/lsd.fish".text =
       lib.concatStringsSep "\n" (
         lib.mapAttrsToList (k: v: "alias ${k} ${lib.escapeShellArg v}") {
