@@ -6,6 +6,7 @@
 }: let
   home = config.directory;
 
+  confDir = "${home}/.cache/mpd";
   dataDir = "${home}/.local/share/mpd";
 
   extraConfig = ''
@@ -14,15 +15,15 @@
         name            "PipeWire"
     }
 
-    log_file            "${home}/.cache/mpd/log"
-    sticker_file        "${home}/.cache/mpd/sticker.db"
+    log_file            "${confDir}/log"
+    sticker_file        "${confDir}/sticker.db"
   '';
 
   mpdConf =
     ''
       music_directory     "${home}/Music"
-      playlist_directory  "${home}/.config/mpd/playlists"
-      db_file             "${home}/.cache/mpd/database"
+      playlist_directory  "${confDir}/playlists"
+      db_file             "${confDir}/database"
       state_file          "${dataDir}/state"
       sticker_file        "${dataDir}/sticker.sql"
 
@@ -47,7 +48,7 @@ in {
     serviceConfig = {
       Type = "notify";
       ExecStart = "${pkgs.mpd}/bin/mpd --no-daemon ${mpdConfFile}";
-      ExecStartPre = ''${pkgs.bash}/bin/bash -c "${pkgs.coreutils}/bin/mkdir -p '${dataDir}' '${home}/.config/mpd/playlists'"'';
+      ExecStartPre = ''${pkgs.bash}/bin/bash -c "${pkgs.coreutils}/bin/mkdir -p '${confDir}' '${dataDir}' '${home}/.config/mpd/playlists'"'';
     };
   };
 
