@@ -20,7 +20,6 @@
       ./noctalia.nix
       ./obs.nix
       ./ssh.nix
-      ./obsidian.nix
     ];
 
     packages = with pkgs; [
@@ -34,6 +33,7 @@
       # Writing
       typora
       sioyek
+      obsidian
 
       # Visual editing
       inkscape
