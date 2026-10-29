@@ -1,11 +1,4 @@
 {pkgs, ...}: {
-  # Replaces the old dev/opencode/ activation script (mkdir -p + cp -r of a
-  # writeTextFile into ~/.config/opencode/opencode.json) with a Hjem copy
-  # entry: the JSON is rendered from an attrset via pkgs.formats.json and
-  # copied (not symlinked) to ~/.config/opencode/opencode.json. With
-  # clobberFiles = true it is refreshed on every activation, exactly like the
-  # old cp -r script did. On-disk bytes differ from the old file only in key
-  # order (the JSON generator sorts keys) but are semantically identical.
   xdg.config.files."opencode/opencode.json" = {
     type = "copy";
     generator = (pkgs.formats.json {}).generate "opencode-config";
@@ -23,6 +16,19 @@
           flint = {
             name = "Recursive Flint";
             modelID = "flint-GGUF:Q8_0";
+            capabilities = {
+              tools = true;
+              input = [
+                "text"
+                "image"
+              ];
+              output = ["text"];
+            };
+            limit.context = 262144;
+          };
+          "qwen3.8" = {
+            name = "Qwen3.8 (local)";
+            modelID = "Qwen3.8-27B-GGUF:UD-Q8_K_XL";
             capabilities = {
               tools = true;
               input = [

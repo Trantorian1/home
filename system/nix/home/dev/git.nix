@@ -3,9 +3,6 @@
   pkgs,
   ...
 }: {
-  # Replaces home-manager's `programs.git`: installs git and renders the XDG
-  # git config with the same INI generator HM used (`lib.generators.toGitINI`),
-  # so the resulting file is byte-identical to the old setup.
   packages = [pkgs.git];
 
   xdg.config.files."git/config" = {

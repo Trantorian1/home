@@ -3,9 +3,7 @@
   pkgs,
   ...
 }: {
-  imports = [
-    ./home
-  ];
+  imports = [./home];
 
   # Needed since the user's default shell is set to `fish`.
   programs.fish.enable = true;

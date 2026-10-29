@@ -4,10 +4,6 @@
   pkgs,
   ...
 }: {
-  # Replaces home-manager's `programs.ghostty`: installs ghostty, renders the
-  # XDG config with HM's exact keyValue format (lists become duplicate keys),
-  # and links the systemd app service + drop-in and D-Bus service file that
-  # HM linked by default on Linux (`programs.ghostty.systemd`).
   packages = [pkgs.ghostty];
 
   xdg.config.files = {
@@ -48,8 +44,5 @@
     };
   };
 
-  # HM's ghostty systemd integration also did `dbus.packages = [ghostty]`,
-  # which links the package's D-Bus service files into
-  # $XDG_DATA_HOME/dbus-1/services/ (single file, so no symlinkJoin needed).
   xdg.data.files."dbus-1/services/com.mitchellh.ghostty.service".source = "${pkgs.ghostty}/share/dbus-1/services/com.mitchellh.ghostty.service";
 }

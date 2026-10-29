@@ -3,10 +3,6 @@
   pkgs,
   ...
 }: {
-  # Replaces home-manager's `programs.beets`: installs beets and renders
-  # ~/.config/beets/config.yaml with HM's exact YAML format (pkgs.formats.yaml).
-  # config.directory is the Hjem user module's equivalent of HM's
-  # config.home.homeDirectory.
   packages = [pkgs.beets];
 
   xdg.config.files."beets/config.yaml" = {
