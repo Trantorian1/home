@@ -112,7 +112,7 @@
     "signon.rememberSignons" = false;
 
     # Homepage (multiple pages would be joined with "|")
-    "browser.startup.homepage" = lib.strings.join "|" [
+    "browser.startup.homepage" = lib.strings.concatStringsSep "|" [
       "https://habitica.com/login"
     ];
   };
