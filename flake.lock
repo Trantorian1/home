@@ -109,11 +109,11 @@
         "spectrum": "spectrum_2"
       },
       "locked": {
-        "lastModified": 1790526615,
-        "narHash": "sha256-33a6iTG1uFv12/zV8yo5VvdpftMNQms6TIHhMCVN6zE=",
+        "lastModified": 1792810338,
+        "narHash": "sha256-0DS+A3BsygKRpKe0qmUWVDSfKqpIHZCpHJagAklE0o4=",
         "owner": "microvm-nix",
         "repo": "microvm.nix",
-        "rev": "81f70a2002254f75b572fc34c55e7df16e9bb176",
+        "rev": "4876e2ae2de6ce225f4ccf664ae441128aa3f03a",
         "type": "github"
       },
       "original": {
@@ -161,6 +161,21 @@
       }
     },
     "nixlib_2": {
+      "locked": {
+        "lastModified": 1793008792,
+        "narHash": "sha256-LfEZqNYu5bLUkNHM11F8HpzKu7lI/p24SAX+0y2DoC8=",
+        "owner": "nix-util",
+        "repo": "nixlib",
+        "rev": "6f574dc8d0c9894483f745cb0183a2b1f085d13c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-util",
+        "repo": "nixlib",
+        "type": "github"
+      }
+    },
+    "nixlib_3": {
       "locked": {
         "lastModified": 1791544737,
         "narHash": "sha256-9B7QDso7MU26oFr68H5h9JvI63crgCrluVcpsYdltsI=",
@@ -222,6 +237,22 @@
       }
     },
     "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1792773339,
+        "narHash": "sha256-rZLrzrC6i+jnTAlvPZHogKDulY7WWDEv9hJeHieO7Zw=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "3ec636362e1816bc2f0888fa0fa2c69f1bc9e504",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
       "locked": {
         "lastModified": 1790822859,
         "narHash": "sha256-69xHQhAeMAD2wDXO7T2pcOZIF9Sga2W+JkmY2a11Ops=",
@@ -305,21 +336,21 @@
     "opencode-sandbox_2": {
       "inputs": {
         "microvm": "microvm_2",
-        "nixpkgs": [
-          "rv",
-          "nixpkgs"
-        ]
+        "nixlib": "nixlib_2",
+        "nixpkgs": "nixpkgs_2",
+        "opencode": "opencode_2"
       },
       "locked": {
-        "lastModified": 1790787293,
-        "narHash": "sha256-YsYG5PC4mdNGxW8EX6R2bDNm9YX428eOLHjkJC1Fcio=",
-        "owner": "trantorian1",
+        "lastModified": 1793009332,
+        "narHash": "sha256-ffyRvGVBjryDQrDY1OT6CE+rcoODUDzjrxsKXXZUkNE=",
+        "owner": "OpencodeSandbox",
         "repo": "opencode-sandbox",
-        "rev": "8d7de9e3bc1058ab36b59fa6c41054ebb872c5b0",
+        "rev": "6489876ee78d226f3cedb7e2657bab55e785b8f3",
         "type": "github"
       },
       "original": {
-        "owner": "trantorian1",
+        "owner": "OpencodeSandbox",
+        "ref": "feat/opencodev2",
         "repo": "opencode-sandbox",
         "type": "github"
       }
@@ -327,7 +358,7 @@
     "opencode-sandbox_3": {
       "inputs": {
         "microvm": "microvm_3",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_3"
       },
       "locked": {
         "lastModified": 1791381782,
@@ -340,6 +371,28 @@
       "original": {
         "owner": "OpencodeSandbox",
         "repo": "opencode-sandbox",
+        "type": "github"
+      }
+    },
+    "opencode_2": {
+      "inputs": {
+        "nixpkgs": [
+          "rv",
+          "opencode-sandbox",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792744221,
+        "narHash": "sha256-nkZaxLcLKFz3atHSjt8xHtmtvi1i1jpD6DFo3VFxyro=",
+        "owner": "anomalyco",
+        "repo": "opencode",
+        "rev": "74f8d4860f49c563909e6b039b0cc8b454ebce72",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anomalyco",
+        "repo": "opencode",
         "type": "github"
       }
     },
@@ -382,11 +435,11 @@
         "opencode-sandbox": "opencode-sandbox_2"
       },
       "locked": {
-        "lastModified": 1791212305,
-        "narHash": "sha256-MPCrbvESxHbxRvTE2C3Wi69Vut0KoZTIwhf1qSsvumY=",
+        "lastModified": 1794402584,
+        "narHash": "sha256-vOOBTE9jbylHi7A6XNlnx+05T92+osvqfCEY4VpuTTk=",
         "owner": "trantorian1",
         "repo": "rv",
-        "rev": "a3a8cf9d89b2a95165187ee064f4a4b868ee1f51",
+        "rev": "fa535fd2e466bf2bb7d874aef948a005df1090d4",
         "type": "github"
       },
       "original": {
@@ -465,7 +518,7 @@
     },
     "unsloth": {
       "inputs": {
-        "nixlib": "nixlib_2",
+        "nixlib": "nixlib_3",
         "nixpkgs": [
           "nixpkgs"
         ],
