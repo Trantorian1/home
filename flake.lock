@@ -435,11 +435,11 @@
         "opencode-sandbox": "opencode-sandbox_2"
       },
       "locked": {
-        "lastModified": 1794410767,
-        "narHash": "sha256-AMFPWcGJOf5ZjW0WDppknnam0Vwl+qDfphQTTAt9Eps=",
+        "lastModified": 1794416639,
+        "narHash": "sha256-7GZQr8z1vqXJKZNYa51tXJtpweRRuz5bD+SOTLOapzM=",
         "owner": "trantorian1",
         "repo": "rv",
-        "rev": "2d261542a5f958fd3a132af72ae35a7aec32907a",
+        "rev": "c53806aead455d8a7751fa748bf2a12e63984817",
         "type": "github"
       },
       "original": {
