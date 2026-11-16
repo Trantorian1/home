@@ -58,6 +58,21 @@
       };
     };
 
+    "opencode/cli.json" = {
+      type = "copy";
+      generator = (pkgs.formats.json {}).generate "opencode-cli";
+      value = {
+        "$schema" = "https://opencode.ai/v2/cli.json";
+        session = {
+          sidebar = "hide";
+        };
+        theme = {
+          name = "opencode";
+          mode = "light";
+        };
+      };
+    };
+
     "opencode/agents/review.md" = {
       type = "copy";
       text = ''
