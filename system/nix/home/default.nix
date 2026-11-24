@@ -38,10 +38,13 @@
       inkscape
       gimp
 
+      # 3D printing
+      bambu-studio
+      freecad
+
       # User apps
       protonmail-desktop
       discord
-      bambu-studio
     ];
   };
 }
