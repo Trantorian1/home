@@ -54,8 +54,8 @@ in {
             };
             "Inkling-2-Mini" = model {
               name = "Inkling-2-Mini (local)";
-              modelID = "Inkling-2-Mini-GGUF:UD-Q8_K_XL";
-              context = 1024000000;
+              modelID = "Inkling-2-Mini-GGUF:UD-Q4_K_XL";
+              context = 1048576;
             };
           };
         };
