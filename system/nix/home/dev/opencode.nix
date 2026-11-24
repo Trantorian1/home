@@ -69,6 +69,7 @@ in {
         "$schema" = "https://opencode.ai/v2/cli.json";
         session = {
           sidebar = "hide";
+          thinking = "show";
         };
         theme = {
           name = "opencode";
