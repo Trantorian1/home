@@ -47,6 +47,9 @@
           ".steam"
           ".local/share/Steam"
 
+          # Civilization VI
+          ".local/share/aspyr-media/Sid Meier's Civilization VI"
+
           # Music
           ".cache/mpd"
           ".config/mpd"
