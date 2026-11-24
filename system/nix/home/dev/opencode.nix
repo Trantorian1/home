@@ -1,57 +1,61 @@
-{pkgs, ...}: {
+{pkgs, ...}: let
+  model = {
+    name,
+    modelID,
+    context,
+  }: {
+    inherit name modelID;
+
+    capabilities = {
+      tools = true;
+      input = [
+        "text"
+        "image"
+      ];
+      output = ["text"];
+    };
+
+    limit.context = context;
+  };
+in {
   xdg.config.files = {
     "opencode/opencode.json" = {
       type = "copy";
       generator = (pkgs.formats.json {}).generate "opencode-config";
       value = {
         "$schema" = "https://opencode.ai/config.json";
-        model = "unsloth/ornith-1.5";
+
+        model = "unsloth/Inkling-2-Mini";
+
         providers.unsloth = {
           name = "Unsloth";
           package = "@opencode/ai/providers/openai-compatible";
+
           settings = {
             baseURL = "http://10.0.2.10:8888/v1";
             apiKey = "{env:UNSLOTH_API_KEY}";
           };
+
           models = {
-            flint = {
+            "flint" = model {
               name = "Recursive Flint";
               modelID = "flint-GGUF:Q8_0";
-              capabilities = {
-                tools = true;
-                input = [
-                  "text"
-                  "image"
-                ];
-                output = ["text"];
-              };
-              limit.context = 262144;
+              context = 262144;
             };
-            "qwen3.8" = {
+            "qwen3.8" = model {
               name = "Qwen3.8 (local)";
               modelID = "Qwen3.8-27B-GGUF:UD-Q8_K_XL";
-              capabilities = {
-                tools = true;
-                input = [
-                  "text"
-                  "image"
-                ];
-                output = ["text"];
-              };
-              limit.context = 262144;
+              context = 262144;
             };
-            "ornith-1.5" = {
+            "ornith-1.5" = model {
               name = "Ornith-1.5 (local)";
               modelID = "Ornith-1.5-35B-A3B-GGUF:Q8_0";
-              capabilities = {
-                tools = true;
-                input = [
-                  "text"
-                  "image"
-                ];
-                output = ["text"];
-              };
-              limit.context = 262144;
+              context = 262144;
+            };
+            "Inkling-2-Mini" = model {
+              name = "Inkling-2-Mini (local)";
+              modelID = "Inkling-2-Mini-GGUF:UD-Q8_K_XL";
+              context = 1024000000;
             };
           };
         };

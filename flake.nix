@@ -32,7 +32,7 @@
 
     unsloth = {
       url = "github:trantorian1/unsloth-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # inputs.nixpkgs.follows = "nixpkgs";
     };
 
     noctalia = {
